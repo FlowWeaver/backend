@@ -15,7 +15,7 @@ api_router.include_router(blog.router, prefix="/blogs", tags=["blog"])
 api_router.include_router(product.router, prefix="/products", tags=["product"])
 
 # 모듈 테스터를 위한 endpoint -> 추후 삭제 예정
-api_router.include_router(test.router, prefix="/tests", tags=["Test"])
+# api_router.include_router(test.router, prefix="/tests", tags=["Test"])
 
 
 @api_router.get("/ping")
