@@ -7,7 +7,9 @@ client = TestClient(app)
 
 def test_crawl_success():
     body = {
-        "product_urls": ["https://ssadagu.kr/shop/view.php?platform=1688&num_iid=886788894790",],
+        "product_urls": [
+            "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=886788894790",
+        ],
     }
 
     response = client.post("/products/crawl", json=body)

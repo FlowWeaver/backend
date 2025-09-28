@@ -4,29 +4,30 @@ from app.main import app
 
 client = TestClient(app)
 
+
 def test_similarity_with_matched_products():
     """매칭된 상품들 중에서 유사도 분석"""
     matched_products = [
         {
             "product_id": 201,
             "title": "15인치 노트북 백팩",
-            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=22334455"
+            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=22334455",
         },
         {
             "product_id": 202,
             "title": "노트북 파우치 13인치",
-            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=66778899"
+            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=66778899",
         },
         {
             "product_id": 101,
             "title": "Magsafe 자기 휴대폰 케이스 아이폰15",
-            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=886788894790"
+            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=886788894790",
         },
         {
             "product_id": 102,
             "title": "휴대 전화 보호 케이스 갤럭시 S24",
-            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=1234567890"
-        }
+            "url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=1234567890",
+        },
     ]
 
     body = {

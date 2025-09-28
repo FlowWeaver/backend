@@ -21,4 +21,3 @@ api_router.include_router(product.router, prefix="/products", tags=["product"])
 @api_router.get("/ping")
 async def root():
     return {"message": "서버 실행중입니다."}
-

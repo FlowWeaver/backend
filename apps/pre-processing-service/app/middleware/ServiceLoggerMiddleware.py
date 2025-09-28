@@ -56,7 +56,6 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
         """기본 서비스 매핑 설정"""
         service_type = "TASK"
         return {
-
             # 네이버 키워드 검색
             "/keywords/search": {
                 "service_type": service_type,
@@ -189,19 +188,15 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             # 상품 이미지 번역
             "blogs/ocr/extract": {
                 "service_type": service_type,
-                "track_params": [
-                ],
-                "response_trackers": [
-                ],
+                "track_params": [],
+                "response_trackers": [],
             },
-            #상품 이미지 S3업로드
+            # 상품 이미지 S3업로드
             "products/s3-upload": {
                 "service_type": service_type,
-                "track_params": [
-                ],
-                "response_trackers": [
-                ],
-            }
+                "track_params": [],
+                "response_trackers": [],
+            },
         }
 
     async def dispatch(self, request: Request, call_next):
