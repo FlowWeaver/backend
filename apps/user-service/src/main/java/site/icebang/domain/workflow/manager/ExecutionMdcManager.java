@@ -11,7 +11,8 @@ public class ExecutionMdcManager {
   private static final String CLIENT_IP = "clientIp";
   private static final String USER_AGENT = "userAgent";
 
-  public void setWorkflowContext(Long workflowId, String traceId, String clientIp, String userAgent) {
+  public void setWorkflowContext(
+      Long workflowId, String traceId, String clientIp, String userAgent) {
     MDC.put(SOURCE_ID, workflowId.toString());
     MDC.put(EXECUTION_TYPE, "WORKFLOW");
     MDC.put(TRACE_ID, traceId);

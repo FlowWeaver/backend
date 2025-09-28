@@ -52,7 +52,8 @@ public class WorkflowExecutionService {
     WorkflowRun workflowRun = WorkflowRun.start(workflowId, context.getTraceId());
     workflowRunMapper.insert(workflowRun);
 
-    mdcManager.setWorkflowContext(workflowId, context.getTraceId(), context.getClientIp(), context.getUserAgent());
+    mdcManager.setWorkflowContext(
+        workflowId, context.getTraceId(), context.getClientIp(), context.getUserAgent());
     try {
       workflowLogger.info("========== 워크플로우 실행 시작: WorkflowId={} ==========", workflowId);
 

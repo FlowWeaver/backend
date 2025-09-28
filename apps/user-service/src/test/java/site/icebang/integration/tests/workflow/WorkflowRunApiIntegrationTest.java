@@ -2,9 +2,9 @@ package site.icebang.integration.tests.workflow;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
-import static org.mockito.ArgumentMatchers.any;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -64,6 +64,7 @@ public class WorkflowRunApiIntegrationTest extends IntegrationTestSupport {
                         .build())));
 
     // 📌 2. 비동기 호출된 executeWorkflow 메소드가 1초 이내에 1번 실행되었는지 검증
-    verify(mockWorkflowExecutionService, timeout(1000).times(1)).executeWorkflow(workflowId, any(RequestContext.class));
+    verify(mockWorkflowExecutionService, timeout(1000).times(1))
+        .executeWorkflow(workflowId, any(RequestContext.class));
   }
 }

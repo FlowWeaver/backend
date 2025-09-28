@@ -1,9 +1,6 @@
 package site.icebang.domain.workflow.model;
 
 import java.time.Instant;
-import java.util.UUID;
-
-import org.slf4j.MDC;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

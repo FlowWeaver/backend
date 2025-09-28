@@ -7,7 +7,6 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.domain.workflow.dto.RequestContext;
 import site.icebang.domain.workflow.service.RequestContextService;
 import site.icebang.domain.workflow.service.WorkflowExecutionService;
 
