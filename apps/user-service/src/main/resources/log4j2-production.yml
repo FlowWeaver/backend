@@ -13,10 +13,10 @@ Configuration:
         value: "UTF-8"
       # 프로덕션 환경용 콘솔 패턴 - 구조화된 로그
       - name: "console-layout-pattern"
-        value: "%highlight{[%-5level]} [%X{traceId}] [%X{spanId}] %d{HH:mm:ss}{UTC} [%t] %logger{20} - %msg%n"
+        value: "%highlight{[%-5level]} [%X{traceId}] [%X{spanId}] [%X{clientIp}] [%X{userAgent}] %d{HH:mm:ss}{UTC} [%t] %logger{20} - %msg%n"
       # 파일용 패턴 - Promtail이 파싱하기 쉽게 구조화 (UTC 시간 사용)
       - name: "file-layout-pattern"
-        value: "[%X{traceId}] [%X{spanId}] %d{yyyy-MM-dd HH:mm:ss.SSS}{UTC} [%t] %-5level %logger{36} - %msg%n"
+        value: "[%X{traceId}] [%X{spanId}] [%X{clientIp}] [%X{userAgent}] %d{yyyy-MM-dd HH:mm:ss.SSS}{UTC} [%t] %-5level %logger{36} - %msg%n"
       # 프로덕션 환경용 로그 파일들
       - name: "prod-log"
         value: ${log-path}/production/app.log

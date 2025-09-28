@@ -20,18 +20,18 @@ public class WorkflowRun {
   private Instant finishedAt;
   private Instant createdAt;
 
-  private WorkflowRun(Long workflowId) {
+  private WorkflowRun(Long workflowId, String traceId) {
     this.workflowId = workflowId;
     // MDC에서 현재 요청의 traceId를 가져오거나, 없으면 새로 생성
-    this.traceId = MDC.get("traceId") != null ? MDC.get("traceId") : UUID.randomUUID().toString();
+    this.traceId = traceId;
     this.status = "RUNNING";
     this.startedAt = Instant.now();
     this.createdAt = this.startedAt;
   }
 
   /** 워크플로우 실행 시작을 위한 정적 팩토리 메소드 */
-  public static WorkflowRun start(Long workflowId) {
-    return new WorkflowRun(workflowId);
+  public static WorkflowRun start(Long workflowId, String traceId) {
+    return new WorkflowRun(workflowId, traceId);
   }
 
   /** 워크플로우 실행 완료 처리 */
