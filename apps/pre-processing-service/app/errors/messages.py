@@ -6,7 +6,7 @@ ERROR_MESSAGES = {
     status.HTTP_401_UNAUTHORIZED: "인증이 필요합니다.",
     status.HTTP_403_FORBIDDEN: "접근 권한이 없습니다.",
     status.HTTP_404_NOT_FOUND: "요청하신 리소스를 찾을 수 없습니다.",
-    status.HTTP_422_UNPROCESSABLE_ENTITY: "입력 데이터가 유효하지 않습니다.",
+    status.HTTP_422_UNPROCESSABLE_CONTENT: "입력 데이터가 유효하지 않습니다.",
     status.HTTP_500_INTERNAL_SERVER_ERROR: "서버 내부 오류가 발생했습니다.",
 }
 
