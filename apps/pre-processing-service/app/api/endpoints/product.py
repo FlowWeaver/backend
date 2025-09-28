@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Request, HTTPException
-from app.decorators.logging import log_api_call
 from ...errors.CustomException import (
     InvalidItemDataException,
     ItemNotFoundException,

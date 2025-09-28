@@ -7,10 +7,9 @@ client = TestClient(app)
 
 def test_crawl_success():
     body = {
-        "tag": "detail",
-        "product_url": "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=886788894790",
-        "use_selenium": False,
-        "include_images": False,
+        "product_urls": [
+            "https://ssadagu.kr/shop/view.php?platform=1688&num_iid=886788894790",
+        ],
     }
 
     response = client.post("/products/crawl", json=body)
@@ -20,8 +19,7 @@ def test_crawl_success():
     data = response.json()
     assert data["success"] == True
     assert data["status"] == "OK"
-    assert data["data"]["product_url"] == body["product_url"]
-    assert "product_detail" in data["data"]
+    assert isinstance(data["data"]["crawled_products"], list)
 
 
 # def test_crawl_invalid_url():
