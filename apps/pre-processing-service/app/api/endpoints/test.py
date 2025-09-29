@@ -5,14 +5,12 @@ import loguru
 from fastapi import APIRouter
 from sqlalchemy import text
 
-from app.decorators.logging import log_api_call
 from ...errors.CustomException import *
 from fastapi import APIRouter
 from typing import Mapping, Any, Dict
 from ...model.schemas import *
 from ...service.blog.blog_create_service import BlogContentService
 from ...service.blog.naver_blog_post_service import NaverBlogPostService
-from ...service.blog.tistory_blog_post_service import TistoryBlogPostService
 from ...service.crawl_service import CrawlService
 from ...service.keyword_service import keyword_search
 from ...service.match_service import MatchService
@@ -27,7 +25,6 @@ router = APIRouter()
 
 
 @router.get("/hello/{name}", tags=["hello"])
-# @log_api_call
 async def say_hello(name: str):
     return {"message": f"Hello {name}"}
 
@@ -122,8 +119,6 @@ async def processing_tester():
     # tistory_service = TistoryBlogPostService()
     naverblogPostService = NaverBlogPostService()
     result = naverblogPostService.post_content(
-        # blog_id="wtecho331",
-        # blog_pw="wt505033@#",
         title=data.get("title"),
         content=data.get("content"),
         tags=data.get("tags"),

@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import site.icebang.domain.workflow.service.RequestContextService;
 import site.icebang.domain.workflow.service.WorkflowExecutionService;
 
 /**
@@ -30,6 +31,7 @@ import site.icebang.domain.workflow.service.WorkflowExecutionService;
 @RequiredArgsConstructor
 public class WorkflowTriggerJob extends QuartzJobBean {
   private final WorkflowExecutionService workflowExecutionService;
+  private final RequestContextService requestContextService;
 
   /**
    * Quartz 스케줄러에 의해 트리거가 발동될 때 호출되는 메인 실행 메소드입니다.
@@ -45,6 +47,6 @@ public class WorkflowTriggerJob extends QuartzJobBean {
   protected void executeInternal(JobExecutionContext context) {
     Long workflowId = context.getJobDetail().getJobDataMap().getLong("workflowId");
     log.info("Quartz가 WorkflowTriggerJob을 실행합니다. WorkflowId={}", workflowId);
-    workflowExecutionService.executeWorkflow(workflowId);
+    workflowExecutionService.executeWorkflow(workflowId, requestContextService.quartzContext());
   }
 }

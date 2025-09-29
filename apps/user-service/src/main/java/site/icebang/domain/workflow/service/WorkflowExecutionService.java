@@ -20,6 +20,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import lombok.RequiredArgsConstructor;
 
 import site.icebang.domain.workflow.dto.JobDto;
+import site.icebang.domain.workflow.dto.RequestContext;
 import site.icebang.domain.workflow.dto.TaskDto;
 import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
 import site.icebang.domain.workflow.manager.ExecutionMdcManager;
@@ -47,11 +48,12 @@ public class WorkflowExecutionService {
   private final WorkflowMapper workflowMapper;
 
   @Async("traceExecutor")
-  public void executeWorkflow(Long workflowId) {
-    WorkflowRun workflowRun = WorkflowRun.start(workflowId);
+  public void executeWorkflow(Long workflowId, RequestContext context) {
+    WorkflowRun workflowRun = WorkflowRun.start(workflowId, context.getTraceId());
     workflowRunMapper.insert(workflowRun);
 
-    mdcManager.setWorkflowContext(workflowId, workflowRun.getTraceId());
+    mdcManager.setWorkflowContext(
+        workflowId, context.getTraceId(), context.getClientIp(), context.getUserAgent());
     try {
       workflowLogger.info("========== 워크플로우 실행 시작: WorkflowId={} ==========", workflowId);
 

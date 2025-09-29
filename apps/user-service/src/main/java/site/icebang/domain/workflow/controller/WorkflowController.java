@@ -14,9 +14,11 @@ import site.icebang.common.dto.ApiResponse;
 import site.icebang.common.dto.PageParams;
 import site.icebang.common.dto.PageResult;
 import site.icebang.domain.auth.model.AuthCredential;
+import site.icebang.domain.workflow.dto.RequestContext;
 import site.icebang.domain.workflow.dto.WorkflowCardDto;
 import site.icebang.domain.workflow.dto.WorkflowCreateDto;
 import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
+import site.icebang.domain.workflow.service.RequestContextService;
 import site.icebang.domain.workflow.service.WorkflowExecutionService;
 import site.icebang.domain.workflow.service.WorkflowService;
 
@@ -26,6 +28,7 @@ import site.icebang.domain.workflow.service.WorkflowService;
 public class WorkflowController {
   private final WorkflowService workflowService;
   private final WorkflowExecutionService workflowExecutionService;
+  private final RequestContextService requestContextService;
 
   @GetMapping("")
   public ApiResponse<PageResult<WorkflowCardDto>> getWorkflowList(
@@ -53,8 +56,10 @@ public class WorkflowController {
 
   @PostMapping("/{workflowId}/run")
   public ResponseEntity<Void> runWorkflow(@PathVariable Long workflowId) {
+
+    RequestContext context = requestContextService.extractRequestContext();
     // HTTP 요청/응답 스레드를 블로킹하지 않도록 비동기 실행
-    workflowExecutionService.executeWorkflow(workflowId);
+    workflowExecutionService.executeWorkflow(workflowId, context);
     return ResponseEntity.accepted().build();
   }
 
