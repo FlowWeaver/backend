@@ -102,12 +102,4 @@ public interface ScheduleMapper {
    */
   Schedule findById(@Param("id") Long id);
 
-  /**
-   * 스케줄 활성화 상태만 변경
-   *
-   * @param id 스케줄 ID
-   * @param isActive 활성화 상태
-   * @return 업데이트된 행 수
-   */
-  int updateActiveStatus(@Param("id") Long id, @Param("isActive") Boolean isActive);
 }
