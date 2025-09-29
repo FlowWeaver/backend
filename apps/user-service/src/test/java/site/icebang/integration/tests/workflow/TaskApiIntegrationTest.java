@@ -1,16 +1,5 @@
 package site.icebang.integration.tests.workflow;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import site.icebang.domain.workflow.dto.TaskDto;
-import site.icebang.domain.workflow.service.WorkflowService;
-import site.icebang.integration.setup.support.IntegrationTestSupport;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -18,13 +7,24 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import site.icebang.domain.workflow.dto.TaskDto;
+import site.icebang.domain.workflow.service.WorkflowService;
+import site.icebang.integration.setup.support.IntegrationTestSupport;
+
 public class TaskApiIntegrationTest extends IntegrationTestSupport {
 
-  @Autowired
-  private ObjectMapper objectMapper;
+  @Autowired private ObjectMapper objectMapper;
 
-  @MockitoBean
-  private WorkflowService workflowService;
+  @MockitoBean private WorkflowService workflowService;
 
   @Test
   @DisplayName("Task 생성 API - 성공")
@@ -43,13 +43,15 @@ public class TaskApiIntegrationTest extends IntegrationTestSupport {
     when(workflowService.createTask(any(TaskDto.class))).thenReturn(createdDto);
 
     // when & then
-    mockMvc.perform(post("/v0/tasks")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .content(objectMapper.writeValueAsString(requestDto)))
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.id").value(1L))
-            .andExpect(jsonPath("$.data.name").value("테스트 태스크"));
+    mockMvc
+        .perform(
+            post("/v0/tasks")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+        .andExpect(status().isCreated())
+        .andExpect(jsonPath("$.success").value(true))
+        .andExpect(jsonPath("$.data.id").value(1L))
+        .andExpect(jsonPath("$.data.name").value("테스트 태스크"));
   }
 
   @Test
@@ -66,11 +68,12 @@ public class TaskApiIntegrationTest extends IntegrationTestSupport {
     when(workflowService.findTaskById(taskId)).thenReturn(foundDto);
 
     // when & then
-    mockMvc.perform(get("/v0/tasks/{id}", taskId))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.success").value(true))
-            .andExpect(jsonPath("$.data.id").value(taskId))
-            .andExpect(jsonPath("$.data.name").value("조회된 태스크"));
+    mockMvc
+        .perform(get("/v0/tasks/{id}", taskId))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.success").value(true))
+        .andExpect(jsonPath("$.data.id").value(taskId))
+        .andExpect(jsonPath("$.data.name").value("조회된 태스크"));
   }
 
   @Test
@@ -82,8 +85,9 @@ public class TaskApiIntegrationTest extends IntegrationTestSupport {
     when(workflowService.findTaskById(nonExistentTaskId)).thenReturn(null);
 
     // when & then
-    mockMvc.perform(get("/v0/tasks/{id}", nonExistentTaskId))
-            .andExpect(status().isNotFound())
-            .andExpect(jsonPath("$.success").value(false));
+    mockMvc
+        .perform(get("/v0/tasks/{id}", nonExistentTaskId))
+        .andExpect(status().isNotFound())
+        .andExpect(jsonPath("$.success").value(false));
   }
 }
