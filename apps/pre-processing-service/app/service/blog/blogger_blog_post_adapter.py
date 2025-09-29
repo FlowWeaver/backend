@@ -50,7 +50,7 @@ class BloggerBlogPostAdapter(BaseBlogPostService):
             result = self.api_service.create_post_via_api(title, content, labels=tags)
             # 결과 로깅
             print(f"포스트 생성 완료: {result.get('published_url', 'URL 없음')}")
-            return result.get('published_url')
+            return result.get("published_url")
         except Exception as e:
             raise BlogPostPublishException("Blogger", f"포스트 작성 실패: {str(e)}")
 
