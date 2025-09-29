@@ -165,7 +165,7 @@ bootJar {
 	exclude 'application-test-*.yml'
 	exclude 'log4j2-test-*.yml'
 	exclude 'application-develop.yml'
-	exclude 'log4j2-develop.yml'
+	exclude 'log4j2-*.yml'
 	exclude 'sql/**'
 }
 
