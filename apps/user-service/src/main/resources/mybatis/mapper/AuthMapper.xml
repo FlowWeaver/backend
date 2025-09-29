@@ -48,4 +48,16 @@
         </foreach>
     </insert>
 
+    <select id="findPasswordByEmail" parameterType="string" resultType="string">
+        SELECT password
+        FROM user
+        WHERE email = #{email}
+    </select>
+
+    <update id="updatePassword">
+        UPDATE user
+        SET password = #{newPassword}
+        WHERE email = #{email}
+    </update>
+
 </mapper>

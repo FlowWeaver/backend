@@ -3,6 +3,7 @@ package site.icebang.integration.tests.auth;
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
 import static com.epages.restdocs.apispec.ResourceDocumentation.*;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
+import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.patch;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.post;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
 import static org.springframework.restdocs.payload.PayloadDocumentation.*;
@@ -610,5 +611,26 @@ class AuthApiIntegrationTest extends IntegrationTestSupport {
                                 .type(JsonFieldType.STRING)
                                 .description("HTTP 상태 (UNAUTHORIZED)"))
                         .build())));
+  }
+
+  @Test
+  @DisplayName("비밀번호 변경 실패 - 미인증 사용자")
+  void changePassword_fail_unauthorized() throws Exception {
+    // given - 로그인하지 않은 상태
+    Map<String, String> changePasswordRequest = new HashMap<>();
+    changePasswordRequest.put("currentPassword", "qwer1234!A");
+    changePasswordRequest.put("newPassword", "newPassword123!A");
+    changePasswordRequest.put("confirmPassword", "newPassword123!A");
+
+    // when & then
+    mockMvc
+        .perform(
+            patch(getApiUrlForDocs("/v0/auth/change-password"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(changePasswordRequest)))
+        .andExpect(status().isUnauthorized())
+        .andExpect(jsonPath("$.success").value(false))
+        .andExpect(jsonPath("$.status").value("UNAUTHORIZED"))
+        .andExpect(jsonPath("$.data").doesNotExist());
   }
 }

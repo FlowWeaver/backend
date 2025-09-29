@@ -16,4 +16,8 @@ public interface AuthMapper {
   int insertUserOrganization(RegisterDto dto); // user_organizations insert
 
   int insertUserRoles(RegisterDto dto); // user_roles insert (foreach)
+
+  String findPasswordByEmail(String email);
+
+  int updatePassword(String email, String newPassword);
 }

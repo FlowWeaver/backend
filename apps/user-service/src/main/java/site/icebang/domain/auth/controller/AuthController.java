@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import site.icebang.common.dto.ApiResponse;
+import site.icebang.domain.auth.dto.ChangePasswordRequestDto;
 import site.icebang.domain.auth.dto.LoginRequestDto;
 import site.icebang.domain.auth.dto.RegisterDto;
 import site.icebang.domain.auth.model.AuthCredential;
@@ -73,6 +74,15 @@ public class AuthController {
       session.invalidate();
     }
 
+    return ApiResponse.success(null);
+  }
+
+  @PatchMapping("/change-password")
+  public ApiResponse<Void> changePassword(
+      @Valid @RequestBody ChangePasswordRequestDto request,
+      @AuthenticationPrincipal AuthCredential user) {
+
+    authService.changePassword(user.getEmail(), request);
     return ApiResponse.success(null);
   }
 }

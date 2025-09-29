@@ -118,4 +118,10 @@ public class GlobalExceptionHandler {
     log.warn(ex.getMessage(), ex);
     return ApiResponse.error("Duplicate: " + ex.getMessage(), HttpStatus.CONFLICT);
   }
+
+  @ExceptionHandler({PasswordMismatchException.class, InvalidPasswordException.class}) // 추가
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiResponse<String> handlePasswordException(RuntimeException ex) {
+    return ApiResponse.error(ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
 }
