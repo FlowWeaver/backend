@@ -13,4 +13,19 @@
         ORDER BY id DESC
             LIMIT 1
     </select>
+
+    <select id="findByTaskRunIds" resultType="site.icebang.domain.workflow.model.TaskIoData">
+        SELECT * FROM task_io_data
+        WHERE task_run_id IN
+        <foreach collection="taskRunIds" item="taskRunId" open="(" separator="," close=")">
+            #{taskRunId}
+        </foreach>
+        <if test="ioType != null and ioType != ''">
+            AND io_type = #{ioType}
+        </if>
+        ORDER BY created_at DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
 </mapper>
