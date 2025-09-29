@@ -1,10 +1,8 @@
 package site.icebang.domain.workflow.runner.fastapi.body;
 
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import site.icebang.domain.workflow.model.JobRun;
 import site.icebang.domain.workflow.model.Task;
 
 public interface TaskBodyBuilder {
@@ -17,12 +15,6 @@ public interface TaskBodyBuilder {
    */
   boolean supports(String taskName);
 
-  /**
-   * 실제 API 요청에 사용될 Body를 생성합니다.
-   *
-   * @param task DB에 저장된 Task의 원본 정의
-   * @param workflowContext 이전 Task들의 결과가 담긴 컨텍스트
-   * @return 생성된 JSON Body
-   */
-  ObjectNode build(Task task, Map<String, JsonNode> workflowContext);
+  // 📌 workflowContext(Map) 대신 JobRun 객체를 받도록 변경
+  ObjectNode build(Task task, JobRun jobRun);
 }

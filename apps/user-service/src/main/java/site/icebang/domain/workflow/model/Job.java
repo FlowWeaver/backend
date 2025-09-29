@@ -26,7 +26,7 @@ public class Job {
     this.id = dto.getId();
     this.name = dto.getName();
     this.description = dto.getDescription();
-    this.isEnabled = dto.getIsEnabled();
+    this.isEnabled = Boolean.TRUE.equals(dto.getIsEnabled());
     this.createdAt = dto.getCreatedAt();
     this.updatedAt = dto.getUpdatedAt();
   }

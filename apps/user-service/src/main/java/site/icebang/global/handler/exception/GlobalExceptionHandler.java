@@ -118,4 +118,17 @@ public class GlobalExceptionHandler {
     log.warn(ex.getMessage(), ex);
     return ApiResponse.error("Duplicate: " + ex.getMessage(), HttpStatus.CONFLICT);
   }
+
+  /**
+   * IllegalArgumentException을 400 Bad Request로 처리합니다. WorkflowService에서 던지는 검증 오류를 처리하기 위해 추가되었습니다.
+   *
+   * @param ex 발생한 {@link IllegalArgumentException}
+   * @return {@link ApiResponse} - 검증 실패 메시지와 {@link HttpStatus#BAD_REQUEST}
+   */
+  @ExceptionHandler(IllegalArgumentException.class)
+  @ResponseStatus(HttpStatus.BAD_REQUEST)
+  public ApiResponse<String> handleIllegalArgument(IllegalArgumentException ex) {
+    log.warn("Validation failed: {}", ex.getMessage());
+    return ApiResponse.error("입력값 검증 실패: " + ex.getMessage(), HttpStatus.BAD_REQUEST);
+  }
 }

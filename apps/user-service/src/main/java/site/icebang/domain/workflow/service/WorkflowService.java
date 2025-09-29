@@ -1,6 +1,7 @@
 package site.icebang.domain.workflow.service;
 
 import java.math.BigInteger;
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -21,12 +22,12 @@ import site.icebang.common.service.PageableService;
 import site.icebang.domain.schedule.mapper.ScheduleMapper;
 import site.icebang.domain.schedule.model.Schedule;
 import site.icebang.domain.schedule.service.QuartzScheduleService;
-import site.icebang.domain.workflow.dto.ScheduleCreateDto;
-import site.icebang.domain.workflow.dto.ScheduleDto;
-import site.icebang.domain.workflow.dto.WorkflowCardDto;
-import site.icebang.domain.workflow.dto.WorkflowCreateDto;
-import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
+import site.icebang.domain.workflow.dto.*;
+import site.icebang.domain.workflow.mapper.JobMapper;
+import site.icebang.domain.workflow.mapper.TaskIoDataMapper;
+import site.icebang.domain.workflow.mapper.TaskMapper;
 import site.icebang.domain.workflow.mapper.WorkflowMapper;
+import site.icebang.domain.workflow.model.TaskIoData;
 
 /**
  * 워크플로우의 '정의'와 관련된 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -51,6 +52,9 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
   private final WorkflowMapper workflowMapper;
   private final ScheduleMapper scheduleMapper;
   private final QuartzScheduleService quartzScheduleService;
+  private final JobMapper jobMapper;
+  private final TaskMapper taskMapper;
+  private final TaskIoDataMapper taskIoDataMapper;
 
   /**
    * 워크플로우 목록을 페이징 처리하여 조회합니다.
@@ -164,6 +168,104 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
     if (dto.hasSchedules() && workflowId != null) {
       registerSchedules(workflowId, dto.getSchedules(), createdBy.longValue());
     }
+  }
+
+  /**
+   * Job 생성
+   *
+   * @param dto Job 생성 정보
+   * @return 생성된 Job 정보
+   * @throws IllegalArgumentException Job 이름이 필수인데 없거나 빈 값일 경우
+   */
+  @Transactional
+  public JobDto createJob(JobDto dto) {
+    // 1. 유효성 검증
+    if (dto.getName() == null || dto.getName().isBlank()) {
+      throw new IllegalArgumentException("job name is required");
+    }
+
+    // 2. 시간 정보 설정
+    Instant now = Instant.now();
+    dto.setCreatedAt(now);
+    dto.setUpdatedAt(now);
+
+    // 3. 생성자 정보 설정 (현재 사용자 정보가 없으므로 기본값 또는 추후 개선)
+    // dto.setCreatedBy(getCurrentUserId());
+    // dto.setUpdatedBy(getCurrentUserId());
+
+    // 4. DB 저장
+    jobMapper.insertJob(dto);
+
+    // 5. 저장된 Job 반환
+    return jobMapper.findJobById(dto.getId());
+  }
+
+  /**
+   * Job ID로 Job 조회
+   *
+   * @param id Job ID
+   * @return Job 정보, 없으면 null
+   */
+  @Transactional(readOnly = true)
+  public JobDto findJobById(Long id) {
+    return jobMapper.findJobById(id);
+  }
+
+  /**
+   * Task 생성
+   *
+   * @param dto Task 생성 정보
+   * @return 생성된 Task 정보
+   * @throws IllegalArgumentException Task 이름이 필수인데 없거나 빈 값일 경우
+   */
+  @Transactional
+  public TaskDto createTask(TaskDto dto) {
+    // 1. 유효성 검증
+    if (dto.getName() == null || dto.getName().isBlank()) {
+      throw new IllegalArgumentException("task name is required");
+    }
+    // 2. 시간 정보 설정
+    Instant now = Instant.now();
+    dto.setCreatedAt(now);
+    dto.setUpdatedAt(now);
+
+    // 3. 생성자 정보 설정 (현재 사용자 정보가 없으므로 기본값 또는 추후 개선)
+    // dto.setCreatedBy(getCurrentUserId());
+    // dto.setUpdatedBy(getCurrentUserId());
+
+    // 4. DB 저장
+    taskMapper.insertTask(dto);
+
+    // 5. 저장된 Task 반환
+    return taskMapper.findTaskById(dto.getId());
+  }
+
+  /**
+   * Task ID로 Task 조회
+   *
+   * @param id Task ID
+   * @return Task 정보, 없으면 null
+   */
+  @Transactional(readOnly = true)
+  public TaskDto findTaskById(Long id) {
+    return taskMapper.findTaskById(id);
+  }
+
+  /**
+   * Task Run ID 목록으로 Task IO 데이터 조회
+   *
+   * @param taskRunIds Task Run ID 목록
+   * @param ioType IO 타입 필터 ("INPUT", "OUTPUT", null이면 모두 조회)
+   * @param limit 조회 제한 수 (null이면 모두 조회)
+   * @return Task IO 데이터 목록 (created_at 기준 내림차순 정렬)
+   */
+  @Transactional(readOnly = true)
+  public List<TaskIoData> getTaskIoDataByTaskRunIds(
+      List<Long> taskRunIds, String ioType, Integer limit) {
+    if (taskRunIds == null || taskRunIds.isEmpty()) {
+      return List.of();
+    }
+    return taskIoDataMapper.findByTaskRunIds(taskRunIds, ioType, limit);
   }
 
   /** 기본 입력값 검증 */

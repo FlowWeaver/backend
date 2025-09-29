@@ -12,6 +12,40 @@
         <result property="updatedAt" column="updated_at" javaType="java.time.Instant" jdbcType="TIMESTAMP" typeHandler="site.icebang.global.config.mybatis.typehandler.InstantTypeHandler"/>
     </resultMap>
 
+    <resultMap id="TaskDtoResultMap" type="site.icebang.domain.workflow.dto.TaskDto">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="type" column="type"/>
+        <result property="parameters" column="parameters" javaType="com.fasterxml.jackson.databind.JsonNode" jdbcType="VARCHAR" typeHandler="site.icebang.global.config.mybatis.typehandler.JsonNodeTypeHandler"/>
+        <result property="createdAt" column="created_at" javaType="java.time.Instant" jdbcType="TIMESTAMP" typeHandler="site.icebang.global.config.mybatis.typehandler.InstantTypeHandler"/>
+        <result property="updatedAt" column="updated_at" javaType="java.time.Instant" jdbcType="TIMESTAMP" typeHandler="site.icebang.global.config.mybatis.typehandler.InstantTypeHandler"/>
+        <result property="executionOrder" column="execution_order"/>
+        <result property="settings" column="settings" javaType="com.fasterxml.jackson.databind.JsonNode" jdbcType="VARCHAR" typeHandler="site.icebang.global.config.mybatis.typehandler.JsonNodeTypeHandler"/>
+    </resultMap>
+
+    <insert id="insertTask" parameterType="site.icebang.domain.workflow.dto.TaskDto"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO task (
+            name,
+            type,
+            parameters,
+            created_at,
+            updated_at
+        ) VALUES (
+                     #{name},
+                     #{type},
+                     #{parameters, javaType=com.fasterxml.jackson.databind.JsonNode, jdbcType=VARCHAR, typeHandler=site.icebang.global.config.mybatis.typehandler.JsonNodeTypeHandler},
+                     #{createdAt},
+                     #{updatedAt}
+                 )
+    </insert>
+
+    <select id="findTaskById" resultMap="TaskDtoResultMap">
+        SELECT t.*
+        FROM task t
+        WHERE t.id = #{id}
+    </select>
+
     <select id="findById" resultMap="TaskResultMap">
         SELECT * FROM task
         WHERE id = #{taskId}

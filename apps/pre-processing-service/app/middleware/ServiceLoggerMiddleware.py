@@ -54,10 +54,11 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
 
     def _default_mappings(self) -> Dict[str, Dict]:
         """기본 서비스 매핑 설정"""
+        service_type = "TASK"
         return {
             # 네이버 키워드 검색
             "/keywords/search": {
-                "service_type": "NAVER_CRAWLING",
+                "service_type": service_type,
                 "track_params": [
                     "tag",
                     "keyword",
@@ -71,7 +72,7 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             },
             # 블로그 RAG 콘텐츠 생성
             "/blogs/rag/create": {
-                "service_type": "BLOG_RAG_CREATE",
+                "service_type": service_type,
                 "track_params": [
                     "keyword",
                     "product_info",
@@ -91,7 +92,7 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             },
             # 블로그 배포
             "/blogs/publish": {
-                "service_type": "BLOG_PUBLISH",
+                "service_type": service_type,
                 "track_params": [
                     "tag",
                     "blog_id",
@@ -115,7 +116,7 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             },
             # 상품 검색
             "/products/search": {
-                "service_type": "PRODUCT_SEARCH",
+                "service_type": service_type,
                 "track_params": [
                     "keyword",
                     "job_id",
@@ -131,7 +132,7 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             },
             # 상품 매칭
             "/products/match": {
-                "service_type": "PRODUCT_MATCH",
+                "service_type": service_type,
                 "track_params": [
                     "keyword",
                     "search_results",
@@ -148,7 +149,7 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             },
             # 상품 유사도 분석
             "/products/similarity": {
-                "service_type": "PRODUCT_SIMILARITY",
+                "service_type": service_type,
                 "track_params": [
                     "keyword",
                     "matched_products",
@@ -167,7 +168,7 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
             },
             # 상품 크롤링
             "/products/crawl": {
-                "service_type": "PRODUCT_CRAWL",
+                "service_type": service_type,
                 "track_params": [
                     "tag",
                     "product_url",
@@ -183,6 +184,18 @@ class ServiceLoggerMiddleware(BaseHTTPMiddleware):
                     "success",
                     "status",
                 ],
+            },
+            # 상품 이미지 번역
+            "blogs/ocr/extract": {
+                "service_type": service_type,
+                "track_params": [],
+                "response_trackers": [],
+            },
+            # 상품 이미지 S3업로드
+            "products/s3-upload": {
+                "service_type": service_type,
+                "track_params": [],
+                "response_trackers": [],
             },
         }
 

@@ -57,8 +57,8 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     """
     # 변경점: ErrorBaseModel을 기본 구조로 사용하고, 추가 정보를 더함
     base_error = ErrorBaseModel(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        detail=ERROR_MESSAGES[status.HTTP_422_UNPROCESSABLE_ENTITY],
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
+        detail=ERROR_MESSAGES[status.HTTP_422_UNPROCESSABLE_CONTENT],
         code="VALIDATION_ERROR",
     )
 
@@ -67,7 +67,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
     response_content["details"] = exc.errors()
 
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
         content=response_content,
     )
 
