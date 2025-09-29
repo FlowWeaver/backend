@@ -36,5 +36,7 @@ public class Task {
     this.type = taskDto.getType();
     this.settings = taskDto.getSettings();
     this.parameters = taskDto.getParameters();
+    this.createdAt = taskDto.getCreatedAt();
+    this.updatedAt = taskDto.getUpdatedAt();
   }
 }

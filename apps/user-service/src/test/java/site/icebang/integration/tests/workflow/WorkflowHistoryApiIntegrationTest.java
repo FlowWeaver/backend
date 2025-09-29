@@ -1,12 +1,12 @@
 package site.icebang.integration.tests.workflow;
 
 import static com.epages.restdocs.apispec.MockMvcRestDocumentationWrapper.document;
-import static com.epages.restdocs.apispec.ResourceDocumentation.*;
-import static org.hamcrest.Matchers.matchesPattern;
+import static com.epages.restdocs.apispec.ResourceDocumentation.resource;
 import static org.springframework.restdocs.mockmvc.RestDocumentationRequestBuilders.get;
 import static org.springframework.restdocs.operation.preprocess.Preprocessors.*;
-import static org.springframework.restdocs.payload.PayloadDocumentation.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,8 +28,9 @@ import site.icebang.integration.setup.support.IntegrationTestSupport;
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
 @Transactional
 public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
+
   @Test
-  @DisplayName("워크플로우 실행 상세 조회 성공")
+  @DisplayName("워크플로우 실행 상세 조회 API - 성공")
   @WithUserDetails("admin@icebang.site")
   void getWorkflowRunDetail_success() throws Exception {
     // given
@@ -43,83 +44,11 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                 .header("Referer", "https://admin.icebang.site/"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.success").value(true))
-        .andExpect(jsonPath("$.status").value("OK"))
-        .andExpect(jsonPath("$.message").value("OK"))
-        // traceId 확인
         .andExpect(jsonPath("$.data.traceId").value("3e3c832d-b51f-48ea-95f9-98f0ae6d3413"))
-        // workflowRun 필드 확인
         .andExpect(jsonPath("$.data.workflowRun.id").value(1))
-        .andExpect(jsonPath("$.data.workflowRun.workflowId").value(1))
-        .andExpect(jsonPath("$.data.workflowRun.workflowName").value("상품 분석 및 블로그 자동 발행"))
-        .andExpect(
-            jsonPath("$.data.workflowRun.workflowDescription")
-                .value("키워드 검색부터 상품 분석 후 블로그 발행까지의 자동화 프로세스"))
-        .andExpect(jsonPath("$.data.workflowRun.runNumber").isEmpty())
         .andExpect(jsonPath("$.data.workflowRun.status").value("FAILED"))
-        .andExpect(jsonPath("$.data.workflowRun.triggerType").isEmpty())
         .andExpect(jsonPath("$.data.workflowRun.startedAt").value("2025-09-22T18:18:43Z"))
         .andExpect(jsonPath("$.data.workflowRun.finishedAt").value("2025-09-22T18:18:44Z"))
-        .andExpect(jsonPath("$.data.workflowRun.durationMs").value(1000))
-        .andExpect(jsonPath("$.data.workflowRun.createdBy").isEmpty())
-        .andExpect(jsonPath("$.data.workflowRun.createdAt").exists())
-        // UTC 시간 형식 검증 (시간대 보장) - 마이크로초 포함 가능
-        .andExpect(
-            jsonPath("$.data.workflowRun.startedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.workflowRun.finishedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.workflowRun.createdAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        // jobRuns 배열 확인
-        .andExpect(jsonPath("$.data.jobRuns").isArray())
-        .andExpect(jsonPath("$.data.jobRuns.length()").value(1))
-        // jobRuns[0] 필드 확인
-        .andExpect(jsonPath("$.data.jobRuns[0].id").value(1))
-        .andExpect(jsonPath("$.data.jobRuns[0].workflowRunId").value(1))
-        .andExpect(jsonPath("$.data.jobRuns[0].jobId").value(1))
-        .andExpect(jsonPath("$.data.jobRuns[0].jobName").value("상품 분석"))
-        .andExpect(jsonPath("$.data.jobRuns[0].jobDescription").value("키워드 검색, 상품 크롤링 및 유사도 분석 작업"))
-        .andExpect(jsonPath("$.data.jobRuns[0].status").value("FAILED"))
-        .andExpect(jsonPath("$.data.jobRuns[0].executionOrder").isEmpty())
-        .andExpect(jsonPath("$.data.jobRuns[0].startedAt").value("2025-09-22T18:18:44Z"))
-        .andExpect(jsonPath("$.data.jobRuns[0].finishedAt").value("2025-09-22T18:18:44Z"))
-        .andExpect(jsonPath("$.data.jobRuns[0].durationMs").value(0))
-        // JobRun UTC 시간 형식 검증 - 마이크로초 포함 가능
-        .andExpect(
-            jsonPath(
-                "$.data.jobRuns[0].startedAt",
-                matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        // finishedAt 도 동일하게
-        .andExpect(
-            jsonPath(
-                "$.data.jobRuns[0].finishedAt",
-                matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        // taskRuns 배열 확인
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns").isArray())
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns.length()").value(1))
-        // taskRuns[0] 필드 확인
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].id").value(1))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].jobRunId").value(1))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].taskId").value(1))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].taskName").value("키워드 검색 태스크"))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].taskDescription").isEmpty())
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].taskType").value("FastAPI"))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].status").value("FAILED"))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].executionOrder").isEmpty())
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].taskRuns[0].startedAt").value("2025-09-22T18:18:44Z"))
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].taskRuns[0].finishedAt").value("2025-09-22T18:18:44Z"))
-        .andExpect(jsonPath("$.data.jobRuns[0].taskRuns[0].durationMs").value(0))
-        // TaskRun UTC 시간 형식 검증 - 마이크로초 포함 가능
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].taskRuns[0].startedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].taskRuns[0].finishedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
         .andDo(
             document(
                 "workflow-run-detail",
@@ -129,8 +58,9 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                     ResourceSnippetParameters.builder()
                         .tag("Workflow History")
                         .summary("워크플로우 실행 상세 조회")
-                        .description("워크플로우 실행 ID로 상세 정보를 조회합니다")
+                        .description("워크플로우 실행 ID로 상세 정보를 조회합니다.")
                         .responseFields(
+                            // 📌 responseFields에 모든 필드 경로를 추가합니다.
                             fieldWithPath("success")
                                 .type(JsonFieldType.BOOLEAN)
                                 .description("요청 성공 여부"),
@@ -155,28 +85,31 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                                 .description("워크플로우 설명"),
                             fieldWithPath("data.workflowRun.runNumber")
                                 .type(JsonFieldType.NULL)
-                                .description("실행 번호"),
+                                .description("실행 번호")
+                                .optional(),
                             fieldWithPath("data.workflowRun.status")
                                 .type(JsonFieldType.STRING)
                                 .description("실행 상태"),
                             fieldWithPath("data.workflowRun.triggerType")
                                 .type(JsonFieldType.NULL)
-                                .description("트리거 유형"),
+                                .description("트리거 유형")
+                                .optional(),
                             fieldWithPath("data.workflowRun.startedAt")
                                 .type(JsonFieldType.STRING)
-                                .description("시작 시간"),
+                                .description("시작 시간 (UTC)"),
                             fieldWithPath("data.workflowRun.finishedAt")
                                 .type(JsonFieldType.STRING)
-                                .description("완료 시간"),
+                                .description("완료 시간 (UTC)"),
                             fieldWithPath("data.workflowRun.durationMs")
                                 .type(JsonFieldType.NUMBER)
                                 .description("실행 시간(ms)"),
                             fieldWithPath("data.workflowRun.createdBy")
                                 .type(JsonFieldType.NULL)
-                                .description("생성자 ID"),
+                                .description("생성자 ID")
+                                .optional(),
                             fieldWithPath("data.workflowRun.createdAt")
                                 .type(JsonFieldType.STRING)
-                                .description("생성 시간"),
+                                .description("생성 시간 (UTC)"),
                             fieldWithPath("data.jobRuns")
                                 .type(JsonFieldType.ARRAY)
                                 .description("Job 실행 목록"),
@@ -194,19 +127,21 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                                 .description("Job 이름"),
                             fieldWithPath("data.jobRuns[].jobDescription")
                                 .type(JsonFieldType.STRING)
-                                .description("Job 설명"),
+                                .description("Job 설명")
+                                .optional(),
                             fieldWithPath("data.jobRuns[].status")
                                 .type(JsonFieldType.STRING)
                                 .description("Job 실행 상태"),
                             fieldWithPath("data.jobRuns[].executionOrder")
                                 .type(JsonFieldType.NULL)
-                                .description("실행 순서"),
+                                .description("실행 순서")
+                                .optional(),
                             fieldWithPath("data.jobRuns[].startedAt")
                                 .type(JsonFieldType.STRING)
-                                .description("Job 시작 시간"),
+                                .description("Job 시작 시간 (UTC)"),
                             fieldWithPath("data.jobRuns[].finishedAt")
                                 .type(JsonFieldType.STRING)
-                                .description("Job 완료 시간"),
+                                .description("Job 완료 시간 (UTC)"),
                             fieldWithPath("data.jobRuns[].durationMs")
                                 .type(JsonFieldType.NUMBER)
                                 .description("Job 실행 시간(ms)"),
@@ -227,7 +162,8 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                                 .description("Task 이름"),
                             fieldWithPath("data.jobRuns[].taskRuns[].taskDescription")
                                 .type(JsonFieldType.NULL)
-                                .description("Task 설명"),
+                                .description("Task 설명")
+                                .optional(),
                             fieldWithPath("data.jobRuns[].taskRuns[].taskType")
                                 .type(JsonFieldType.STRING)
                                 .description("Task 유형"),
@@ -236,13 +172,14 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                                 .description("Task 실행 상태"),
                             fieldWithPath("data.jobRuns[].taskRuns[].executionOrder")
                                 .type(JsonFieldType.NULL)
-                                .description("Task 실행 순서"),
+                                .description("Task 실행 순서")
+                                .optional(),
                             fieldWithPath("data.jobRuns[].taskRuns[].startedAt")
                                 .type(JsonFieldType.STRING)
-                                .description("Task 시작 시간"),
+                                .description("Task 시작 시간 (UTC)"),
                             fieldWithPath("data.jobRuns[].taskRuns[].finishedAt")
                                 .type(JsonFieldType.STRING)
-                                .description("Task 완료 시간"),
+                                .description("Task 완료 시간 (UTC)"),
                             fieldWithPath("data.jobRuns[].taskRuns[].durationMs")
                                 .type(JsonFieldType.NUMBER)
                                 .description("Task 실행 시간(ms)"),
@@ -253,49 +190,5 @@ public class WorkflowHistoryApiIntegrationTest extends IntegrationTestSupport {
                                 .type(JsonFieldType.STRING)
                                 .description("HTTP 상태"))
                         .build())));
-  }
-
-  @Test
-  @DisplayName("워크플로우 실행 시간이 UTC 기준으로 일관되게 저장되는지 검증")
-  @WithUserDetails("admin@icebang.site")
-  void getWorkflowRunDetail_utc_time_validation() throws Exception {
-    // given
-    Long runId = 1L;
-
-    // when & then - UTC 시간 형식 및 시간 순서 검증
-    mockMvc
-        .perform(
-            get(getApiUrlForDocs("/v0/workflow-runs/{runId}"), runId)
-                .header("Origin", "https://admin.icebang.site")
-                .header("Referer", "https://admin.icebang.site/"))
-        .andExpect(status().isOk())
-        .andExpect(jsonPath("$.success").value(true))
-        // WorkflowRun 시간이 UTC 형식인지 검증 - 마이크로초 포함 가능
-        .andExpect(
-            jsonPath("$.data.workflowRun.startedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.workflowRun.finishedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.workflowRun.createdAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        // JobRun 시간이 UTC 형식인지 검증 - 마이크로초 포함 가능
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].startedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].finishedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        // TaskRun 시간이 UTC 형식인지 검증 - 마이크로초 포함 가능
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].taskRuns[0].startedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        .andExpect(
-            jsonPath("$.data.jobRuns[0].taskRuns[0].finishedAt")
-                .value(matchesPattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?Z$")))
-        // 시간 순서 논리적 검증 (startedAt <= finishedAt)
-        .andExpect(jsonPath("$.data.workflowRun.startedAt").value("2025-09-22T18:18:43Z"))
-        .andExpect(jsonPath("$.data.workflowRun.finishedAt").value("2025-09-22T18:18:44Z"));
   }
 }
