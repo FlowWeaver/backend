@@ -12,10 +12,10 @@ Configuration:
         value: "UTF-8"
       # DEBUG 환경용 콘솔 패턴 - 더 간단하고 가독성 좋게
       - name: "console-layout-pattern"
-        value: "%highlight{[%-5level]} [%X{traceId}] [%X{spanId}] %d{HH:mm:ss} [%t] %n   %logger{20} - %msg%n%n "
+        value: "%highlight{[%-5level]} [%X{traceId}] [%X{spanId}] [%X{clientIp}] [%X{userAgent}] %d{HH:mm:ss} [%t] %n   %logger{20} - %msg%n%n "
       # 파일용 패턴 - Promtail이 파싱하기 쉽게 구조화 (UTC 시간 사용)
       - name: "file-layout-pattern"
-        value: "[%X{traceId}] [%X{spanId}] %d{yyyy-MM-dd HH:mm:ss.SSS}{UTC} [%t] %-5level %logger{36} - %msg%n"
+        value: "[%X{traceId}] [%X{spanId}] [%X{clientIp}] [%X{userAgent}] %d{yyyy-MM-dd HH:mm:ss.SSS}{UTC} [%t] %-5level %logger{36} - %msg%n"
       # 개발 환경용 로그 파일들 - 절대경로나 상대경로 설정
       - name: "dev-log"
         value: ${log-path}/develop/app.log

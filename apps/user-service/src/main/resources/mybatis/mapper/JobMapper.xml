@@ -23,6 +23,33 @@
         <result property="executionOrder" column="execution_order"/>
     </resultMap>
 
+    <insert id="insertJob" parameterType="site.icebang.domain.workflow.dto.JobDto"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO job (
+            name,
+            description,
+            is_enabled,
+            created_at,
+            created_by,
+            updated_at,
+            updated_by
+        ) VALUES (
+                     #{name},
+                     #{description},
+                     #{isEnabled},
+                     #{createdAt},
+                     #{createdBy},
+                     #{updatedAt},
+                     #{updatedBy}
+                 )
+    </insert>
+
+    <select id="findJobById" resultMap="JobDtoResultMap">
+        SELECT j.*
+        FROM job j
+        WHERE j.id = #{id}
+    </select>
+
     <select id="findJobsByWorkflowId" resultMap="JobDtoResultMap">
         SELECT
             j.*,
