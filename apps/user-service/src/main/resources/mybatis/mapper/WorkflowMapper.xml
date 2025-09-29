@@ -186,4 +186,21 @@
         (#{job2Id}, 7, 1),
         (#{job2Id}, 8, 2)
     </insert>
+
+    <!-- 워크플로우 활성화 상태 변경 -->
+    <update id="updateWorkflowEnabled">
+        UPDATE workflow
+        SET is_enabled = #{isEnabled},
+            updated_at = UTC_TIMESTAMP()
+        WHERE id = #{workflowId}
+    </update>
+
+    <!-- 워크플로우 삭제 표시 (선택사항: deleted_at 컬럼이 있는 경우) -->
+    <update id="markAsDeleted">
+        UPDATE workflow
+        SET is_enabled = false,
+            updated_at = UTC_TIMESTAMP()
+        -- deleted_at = UTC_TIMESTAMP()  -- 컬럼이 있다면 주석 해제
+        WHERE id = #{workflowId}
+    </update>
 </mapper>
