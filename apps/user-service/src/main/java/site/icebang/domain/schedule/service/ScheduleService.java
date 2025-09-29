@@ -1,6 +1,6 @@
 package site.icebang.domain.schedule.service;
 
-import java.util.List;
+import java.util.*;
 
 import org.quartz.CronExpression;
 import org.springframework.stereotype.Service;
@@ -13,6 +13,7 @@ import site.icebang.domain.schedule.mapper.ScheduleMapper;
 import site.icebang.domain.schedule.model.Schedule;
 import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 import site.icebang.domain.schedule.dto.ScheduleUpdateDto;
+import site.icebang.common.exception.DuplicateDataException;
 
 /**
  * 스케줄 관리를 위한 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -233,5 +234,90 @@ public class ScheduleService {
       log.warn("유효하지 않은 크론 표현식: {}", cronExpression, e);
       return false;
     }
+  }
+
+  /**
+   * 스케줄 목록을 검증하고 등록합니다.
+   *
+   * @param workflowId 워크플로우 ID
+   * @param scheduleDtos 등록할 스케줄 목록
+   * @param userId 생성자 ID
+   * @throws IllegalArgumentException 유효하지 않은 크론식
+   * @throws DuplicateDataException 중복 크론식 발견
+   */
+  @Transactional
+  public void validateAndRegisterSchedules(
+          Long workflowId,
+          List<ScheduleCreateDto> scheduleDtos,
+          Long userId) {
+
+    // 1. 검증
+    validateSchedules(scheduleDtos);
+
+    // 2. 등록
+    for (ScheduleCreateDto dto : scheduleDtos) {
+      createSchedule(workflowId, dto, userId);
+    }
+  }
+
+  /**
+   * 스케줄 목록 검증 (크론 표현식 유효성 및 중복 검사)
+   */
+  public void validateSchedules(List<ScheduleCreateDto> schedules) {
+    if (schedules == null || schedules.isEmpty()) {
+      return;
+    }
+
+    Set<String> cronExpressions = new HashSet<>();
+
+    for (ScheduleCreateDto schedule : schedules) {
+      String cron = schedule.getCronExpression();
+
+      // 크론 표현식 유효성 검증
+      if (!isValidCronExpression(cron)) {
+        throw new IllegalArgumentException("유효하지 않은 크론 표현식입니다: " + cron);
+      }
+
+      // 중복 크론식 검사
+      if (cronExpressions.contains(cron)) {
+        throw new DuplicateDataException("중복된 크론 표현식이 있습니다: " + cron);
+      }
+      cronExpressions.add(cron);
+    }
+  }
+
+  /**
+   * 워크플로우의 모든 스케줄을 비활성화합니다.
+   */
+  @Transactional
+  public void deactivateAllByWorkflowId(Long workflowId) {
+    log.info("워크플로우 스케줄 일괄 비활성화: Workflow ID {}", workflowId);
+
+    // DB 비활성화
+    scheduleMapper.deactivateAllByWorkflowId(workflowId);
+
+    // Quartz 제거
+    quartzScheduleService.deleteSchedule(workflowId);
+  }
+
+  /**
+   * 워크플로우의 활성 스케줄을 Quartz에 재등록합니다.
+   */
+  @Transactional
+  public int reactivateAllByWorkflowId(Long workflowId) {
+    log.info("워크플로우 스케줄 일괄 재활성화: Workflow ID {}", workflowId);
+
+    List<Schedule> activeSchedules = scheduleMapper.findAllByWorkflowId(workflowId);
+    int count = 0;
+
+    for (Schedule schedule : activeSchedules) {
+      if (schedule.isActive()) {
+        quartzScheduleService.addOrUpdateSchedule(schedule);
+        count++;
+      }
+    }
+
+    log.info("Quartz 재등록 완료: {}개 스케줄", count);
+    return count;
   }
 }
