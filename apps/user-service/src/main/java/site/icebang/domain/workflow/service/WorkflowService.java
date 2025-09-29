@@ -22,6 +22,7 @@ import site.icebang.common.service.PageableService;
 import site.icebang.domain.schedule.mapper.ScheduleMapper;
 import site.icebang.domain.schedule.model.Schedule;
 import site.icebang.domain.schedule.service.QuartzScheduleService;
+import site.icebang.domain.schedule.service.ScheduleService;
 import site.icebang.domain.workflow.dto.*;
 import site.icebang.domain.workflow.mapper.JobMapper;
 import site.icebang.domain.workflow.mapper.TaskMapper;
@@ -50,6 +51,7 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
   private final WorkflowMapper workflowMapper;
   private final ScheduleMapper scheduleMapper;
   private final QuartzScheduleService quartzScheduleService;
+  private final ScheduleService scheduleService;
   private final JobMapper jobMapper;
   private final TaskMapper taskMapper;
 
@@ -333,61 +335,146 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
    * <p>트랜잭션 내에서 DB 저장을 수행하고, Quartz 등록은 실패해도 워크플로우는 유지되도록 예외를 로그로만 처리합니다.
    *
    * @param workflowId 워크플로우 ID
-   * @param scheduleCreateDtos 등록할 스케줄 목록
+   * @param scheduleDtos 등록할 스케줄 목록
    * @param userId 생성자 ID
    */
-  private void registerSchedules(
-      Long workflowId, List<ScheduleCreateDto> scheduleCreateDtos, Long userId) {
-    if (scheduleCreateDtos == null || scheduleCreateDtos.isEmpty()) {
-      return;
+  @Transactional
+  public void registerSchedules(Long workflowId, List<ScheduleCreateDto> scheduleDtos, Long userId) {
+    for (ScheduleCreateDto dto : scheduleDtos) {
+      scheduleService.createSchedule(workflowId, dto, userId);
+    }
+  }
+
+  /**
+   * 워크플로우를 비활성화하고 모든 스케줄을 중단합니다.
+   *
+   * <p>워크플로우와 연결된 모든 스케줄을 비활성화하고, Quartz 스케줄러에서도 제거합니다.
+   *
+   * @param workflowId 비활성화할 워크플로우 ID
+   * @throws IllegalArgumentException 워크플로우가 존재하지 않을 경우
+   */
+  @Transactional
+  public void deactivateWorkflow(BigInteger workflowId) {
+    log.info("워크플로우 비활성화 시작: Workflow ID {}", workflowId);
+
+    // 1. 워크플로우 존재 확인
+    WorkflowDetailCardDto workflow = workflowMapper.selectWorkflowDetailById(workflowId);
+    if (workflow == null) {
+      throw new IllegalArgumentException("워크플로우를 찾을 수 없습니다: " + workflowId);
     }
 
-    log.info("스케줄 등록 시작: Workflow ID {} - {}개", workflowId, scheduleCreateDtos.size());
+    // 2. 워크플로우 비활성화
+    int result = workflowMapper.updateWorkflowEnabled(workflowId, false);
+    if (result != 1) {
+      throw new RuntimeException("워크플로우 비활성화에 실패했습니다: " + workflowId);
+    }
 
-    int successCount = 0;
-    int failCount = 0;
+    // 3. 연결된 모든 스케줄 비활성화 (DB)
+    scheduleMapper.deactivateAllByWorkflowId(workflowId.longValue());
 
-    for (ScheduleCreateDto dto : scheduleCreateDtos) {
-      try {
-        // 1. DTO → Model 변환
-        Schedule schedule = dto.toEntity(workflowId, userId);
+    // 4. Quartz에서 스케줄 제거
+    quartzScheduleService.deleteSchedule(workflowId.longValue());
 
-        // 2. DB 중복 체크 (같은 워크플로우 + 같은 크론식)
-        if (scheduleMapper.existsByWorkflowIdAndCronExpression(
-            workflowId, schedule.getCronExpression())) {
-          throw new DuplicateDataException(
-              "이미 동일한 크론식의 스케줄이 존재합니다: " + schedule.getCronExpression());
-        }
+    log.info("워크플로우 비활성화 완료: Workflow ID {}", workflowId);
+  }
 
-        // 3. DB 저장
-        int insertResult = scheduleMapper.insertSchedule(schedule);
-        if (insertResult != 1) {
-          log.error("스케줄 DB 저장 실패: Workflow ID {} - {}", workflowId, schedule.getCronExpression());
-          failCount++;
-          continue;
-        }
+  /**
+   * 워크플로우를 활성화하고 모든 스케줄을 재등록합니다.
+   *
+   * <p>워크플로우를 활성화하고, 연결된 활성 스케줄들을 Quartz에 재등록합니다.
+   *
+   * @param workflowId 활성화할 워크플로우 ID
+   * @throws IllegalArgumentException 워크플로우가 존재하지 않을 경우
+   */
+  @Transactional
+  public void activateWorkflow(BigInteger workflowId) {
+    log.info("워크플로우 활성화 시작: Workflow ID {}", workflowId);
 
-        // 4. Quartz 등록 (실시간 반영)
+    // 1. 워크플로우 존재 확인
+    WorkflowDetailCardDto workflow = workflowMapper.selectWorkflowDetailById(workflowId);
+    if (workflow == null) {
+      throw new IllegalArgumentException("워크플로우를 찾을 수 없습니다: " + workflowId);
+    }
+
+    // 2. 워크플로우 활성화
+    int result = workflowMapper.updateWorkflowEnabled(workflowId, true);
+    if (result != 1) {
+      throw new RuntimeException("워크플로우 활성화에 실패했습니다: " + workflowId);
+    }
+
+    // 3. 연결된 활성 스케줄 조회
+    List<Schedule> activeSchedules = scheduleMapper.findAllByWorkflowId(workflowId.longValue());
+
+    // 4. Quartz에 스케줄 재등록
+    for (Schedule schedule : activeSchedules) {
+      if (schedule.isActive()) {
         quartzScheduleService.addOrUpdateSchedule(schedule);
-
-        log.info(
-            "스케줄 등록 완료: Workflow ID {} - {} ({})",
-            workflowId,
-            schedule.getCronExpression(),
-            schedule.getScheduleText());
-        successCount++;
-
-      } catch (DuplicateDataException e) {
-        log.warn("스케줄 중복으로 등록 건너뜀: Workflow ID {} - {}", workflowId, dto.getCronExpression());
-        failCount++;
-        // 중복은 경고만 하고 계속 진행
-      } catch (Exception e) {
-        log.error("스케줄 등록 실패: Workflow ID {} - {}", workflowId, dto.getCronExpression(), e);
-        failCount++;
-        // 스케줄 등록 실패해도 워크플로우는 유지
+        log.debug("스케줄 Quartz 재등록: Schedule ID {}", schedule.getId());
       }
     }
 
-    log.info("스케줄 등록 완료: Workflow ID {} - 성공 {}개, 실패 {}개", workflowId, successCount, failCount);
+    log.info("워크플로우 활성화 완료: Workflow ID {} - {}개 스케줄 재등록", workflowId, activeSchedules.size());
+  }
+
+  /**
+   * 워크플로우를 삭제합니다 (논리 삭제).
+   *
+   * <p>워크플로우를 비활성화하고, 모든 스케줄을 중단하며, Quartz에서 제거합니다. 실제 DB에서 삭제하지 않고 비활성화 처리합니다.
+   *
+   * @param workflowId 삭제할 워크플로우 ID
+   * @throws IllegalArgumentException 워크플로우가 존재하지 않을 경우
+   */
+  @Transactional
+  public void deleteWorkflow(BigInteger workflowId) {
+    log.info("워크플로우 삭제 시작: Workflow ID {}", workflowId);
+
+    // 1. 워크플로우 존재 확인
+    WorkflowDetailCardDto workflow = workflowMapper.selectWorkflowDetailById(workflowId);
+    if (workflow == null) {
+      throw new IllegalArgumentException("워크플로우를 찾을 수 없습니다: " + workflowId);
+    }
+
+    // 2. 워크플로우 비활성화 (논리 삭제)
+    deactivateWorkflow(workflowId);
+
+    // 3. 추가로 삭제 플래그 설정 (선택사항: deleted_at 컬럼이 있다면)
+    // workflowMapper.markAsDeleted(workflowId);
+
+    log.info("워크플로우 삭제 완료: Workflow ID {}", workflowId);
+  }
+
+  /**
+   * 워크플로우의 특정 스케줄만 삭제합니다.
+   *
+   * <p>스케줄을 DB에서 비활성화하고 Quartz에서 제거합니다.
+   *
+   * @param workflowId 워크플로우 ID
+   * @param scheduleId 삭제할 스케줄 ID
+   * @throws IllegalArgumentException 스케줄이 존재하지 않거나 워크플로우에 속하지 않을 경우
+   */
+  @Transactional
+  public void deleteWorkflowSchedule(BigInteger workflowId, Long scheduleId) {
+    log.info("워크플로우 스케줄 삭제 시작: Workflow ID {}, Schedule ID {}", workflowId, scheduleId);
+
+    // 1. 스케줄 조회 및 검증
+    Schedule schedule = scheduleMapper.findById(scheduleId);
+    if (schedule == null) {
+      throw new IllegalArgumentException("스케줄을 찾을 수 없습니다: " + scheduleId);
+    }
+    if (!schedule.getWorkflowId().equals(workflowId.longValue())) {
+      throw new IllegalArgumentException(
+              "스케줄이 해당 워크플로우에 속하지 않습니다: Schedule ID " + scheduleId);
+    }
+
+    // 2. DB에서 스케줄 비활성화
+    int result = scheduleMapper.deleteSchedule(scheduleId);
+    if (result != 1) {
+      throw new RuntimeException("스케줄 삭제에 실패했습니다: Schedule ID " + scheduleId);
+    }
+
+    // 3. Quartz에서 스케줄 제거
+    quartzScheduleService.deleteSchedule(workflowId.longValue());
+
+    log.info("워크플로우 스케줄 삭제 완료: Workflow ID {}, Schedule ID {}", workflowId, scheduleId);
   }
 }
