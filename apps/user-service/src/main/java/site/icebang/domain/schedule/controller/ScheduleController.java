@@ -1,4 +1,4 @@
-package site.icebang.domain.workflow.controller;
+package site.icebang.domain.schedule.controller;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ import site.icebang.common.dto.ApiResponse;
 import site.icebang.domain.auth.model.AuthCredential;
 import site.icebang.domain.schedule.model.Schedule;
 import site.icebang.domain.schedule.service.ScheduleService;
-import site.icebang.domain.workflow.dto.ScheduleCreateDto;
-import site.icebang.domain.workflow.dto.ScheduleUpdateDto;
+import site.icebang.domain.schedule.dto.ScheduleCreateDto;
+import site.icebang.domain.schedule.dto.ScheduleUpdateDto;
 
 /**
  * 스케줄 관리를 위한 REST API 컨트롤러입니다.
@@ -44,6 +44,7 @@ public class ScheduleController {
   private final ScheduleService scheduleService;
 
   @PostMapping("/workflows/{workflowId}/schedules")
+  @ResponseStatus(HttpStatus.CREATED)
   public ApiResponse<Schedule> createSchedule(
       @PathVariable Long workflowId,
       @Valid @RequestBody ScheduleCreateDto dto,

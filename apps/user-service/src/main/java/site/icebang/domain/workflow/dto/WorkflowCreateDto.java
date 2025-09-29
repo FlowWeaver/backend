@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 
 /**
  * 워크플로우 생성 요청 DTO

@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 
 import site.icebang.domain.schedule.mapper.ScheduleMapper;
 import site.icebang.domain.schedule.model.Schedule;
-import site.icebang.domain.workflow.dto.ScheduleCreateDto;
-import site.icebang.domain.workflow.dto.ScheduleUpdateDto;
+import site.icebang.domain.schedule.dto.ScheduleCreateDto;
+import site.icebang.domain.schedule.dto.ScheduleUpdateDto;
 
 /**
  * 스케줄 관리를 위한 비즈니스 로직을 처리하는 서비스 클래스입니다.

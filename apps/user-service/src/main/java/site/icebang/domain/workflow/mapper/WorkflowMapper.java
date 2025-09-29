@@ -6,7 +6,7 @@ import java.util.*;
 import org.apache.ibatis.annotations.Param;
 
 import site.icebang.common.dto.PageParams;
-import site.icebang.domain.workflow.dto.ScheduleDto;
+import site.icebang.domain.schedule.dto.ScheduleDto;
 import site.icebang.domain.workflow.dto.WorkflowCardDto;
 import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
 

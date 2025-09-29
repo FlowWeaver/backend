@@ -53,7 +53,7 @@
     </resultMap>
 
     <!-- 스케줄 정보 매핑 -->
-    <resultMap id="ScheduleMap" type="site.icebang.domain.workflow.dto.ScheduleDto">
+    <resultMap id="ScheduleMap" type="site.icebang.domain.schedule.dto.ScheduleDto">
         <id     property="id"            column="id"/>
         <result property="cronExpression" column="cronExpression"/>
         <result property="isActive"       column="isActive"/>
