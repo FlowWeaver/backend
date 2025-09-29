@@ -68,4 +68,64 @@ public class WorkflowController {
     WorkflowDetailCardDto result = workflowService.getWorkflowDetail(workflowId);
     return ApiResponse.success(result);
   }
+
+  /**
+   * 워크플로우를 삭제합니다 (논리 삭제).
+   *
+   * <p>워크플로우를 비활성화하고 모든 스케줄을 중단합니다.
+   *
+   * @param workflowId 삭제할 워크플로우 ID
+   * @return 성공 응답
+   */
+  @DeleteMapping("/{workflowId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public ApiResponse<Void> deleteWorkflow(@PathVariable BigInteger workflowId) {
+    workflowService.deleteWorkflow(workflowId);
+    return ApiResponse.success(null);
+  }
+
+  /**
+   * 워크플로우를 비활성화합니다.
+   *
+   * <p>워크플로우를 중단하고 모든 스케줄을 Quartz에서 제거합니다.
+   *
+   * @param workflowId 비활성화할 워크플로우 ID
+   * @return 성공 응답
+   */
+  @PatchMapping("/{workflowId}/deactivate")
+  public ApiResponse<Void> deactivateWorkflow(@PathVariable BigInteger workflowId) {
+    workflowService.deactivateWorkflow(workflowId);
+    return ApiResponse.success(null);
+  }
+
+  /**
+   * 워크플로우를 활성화합니다.
+   *
+   * <p>워크플로우를 재개하고 모든 활성 스케줄을 Quartz에 재등록합니다.
+   *
+   * @param workflowId 활성화할 워크플로우 ID
+   * @return 성공 응답
+   */
+  @PatchMapping("/{workflowId}/activate")
+  public ApiResponse<Void> activateWorkflow(@PathVariable BigInteger workflowId) {
+    workflowService.activateWorkflow(workflowId);
+    return ApiResponse.success(null);
+  }
+
+  /**
+   * 워크플로우의 특정 스케줄을 삭제합니다.
+   *
+   * <p>스케줄을 비활성화하고 Quartz에서 제거합니다.
+   *
+   * @param workflowId 워크플로우 ID
+   * @param scheduleId 삭제할 스케줄 ID
+   * @return 성공 응답
+   */
+  @DeleteMapping("/{workflowId}/schedules/{scheduleId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public ApiResponse<Void> deleteWorkflowSchedule(
+          @PathVariable BigInteger workflowId, @PathVariable Long scheduleId) {
+    workflowService.deleteWorkflowSchedule(workflowId, scheduleId);
+    return ApiResponse.success(null);
+  }
 }
