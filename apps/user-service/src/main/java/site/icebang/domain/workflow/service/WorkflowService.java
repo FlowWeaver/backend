@@ -359,7 +359,8 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
    * @param userId 생성자 ID
    */
   @Transactional
-  public void registerSchedules(Long workflowId, List<ScheduleCreateDto> scheduleDtos, Long userId) {
+  public void registerSchedules(
+      Long workflowId, List<ScheduleCreateDto> scheduleDtos, Long userId) {
     for (ScheduleCreateDto dto : scheduleDtos) {
       scheduleService.createSchedule(workflowId, dto, userId);
     }
@@ -482,8 +483,7 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
       throw new IllegalArgumentException("스케줄을 찾을 수 없습니다: " + scheduleId);
     }
     if (!schedule.getWorkflowId().equals(workflowId.longValue())) {
-      throw new IllegalArgumentException(
-              "스케줄이 해당 워크플로우에 속하지 않습니다: Schedule ID " + scheduleId);
+      throw new IllegalArgumentException("스케줄이 해당 워크플로우에 속하지 않습니다: Schedule ID " + scheduleId);
     }
 
     // 2. DB에서 스케줄 비활성화

@@ -124,7 +124,7 @@ public class WorkflowController {
   @DeleteMapping("/{workflowId}/schedules/{scheduleId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public ApiResponse<Void> deleteWorkflowSchedule(
-          @PathVariable BigInteger workflowId, @PathVariable Long scheduleId) {
+      @PathVariable BigInteger workflowId, @PathVariable Long scheduleId) {
     workflowService.deleteWorkflowSchedule(workflowId, scheduleId);
     return ApiResponse.success(null);
   }

@@ -20,11 +20,11 @@ import site.icebang.e2e.setup.support.E2eTestSupport;
  * <p>ScheduleService 기능을 API 플로우 관점에서 검증
  */
 @Sql(
-        value = {
-                "classpath:sql/data/00-truncate.sql",
-                "classpath:sql/data/01-insert-internal-users.sql"
-        },
-        executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
+    value = {
+      "classpath:sql/data/00-truncate.sql",
+      "classpath:sql/data/01-insert-internal-users.sql"
+    },
+    executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @E2eTest
 @DisplayName("스케줄 관리 E2E 테스트")
 class ScheduleManagementE2eTest extends E2eTestSupport {
@@ -49,7 +49,8 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     HttpEntity<Map<String, Object>> entity = new HttpEntity<>(scheduleRequest, headers);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(getV0ApiUrl("/workflows/" + workflowId + "/schedules"), entity, Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"), entity, Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat((Boolean) response.getBody().get("success")).isTrue();
@@ -72,11 +73,16 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
-                    new HttpEntity<>(scheduleRequest, headers), Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
+            new HttpEntity<>(scheduleRequest, headers),
+            Map.class);
 
     assertThat(response.getStatusCode())
-            .isIn(HttpStatus.BAD_REQUEST, HttpStatus.UNPROCESSABLE_ENTITY, HttpStatus.INTERNAL_SERVER_ERROR);
+        .isIn(
+            HttpStatus.BAD_REQUEST,
+            HttpStatus.UNPROCESSABLE_ENTITY,
+            HttpStatus.INTERNAL_SERVER_ERROR);
 
     logSuccess("잘못된 크론식 검증 완료");
   }
@@ -96,8 +102,10 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
-                    new HttpEntity<>(scheduleRequest, headers), Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
+            new HttpEntity<>(scheduleRequest, headers),
+            Map.class);
 
     System.out.println("==== response body ====");
     System.out.println(response.getBody());
@@ -120,7 +128,8 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
 
     logStep(1, "스케줄 목록 조회 API 호출");
     ResponseEntity<Map> response =
-            restTemplate.getForEntity(getV0ApiUrl("/workflows/" + workflowId + "/schedules"), Map.class);
+        restTemplate.getForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"), Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat((Boolean) response.getBody().get("success")).isTrue();
@@ -150,8 +159,9 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    restTemplate.put(getV0ApiUrl("/workflows/" + workflowId + "/schedules/" + scheduleId),
-            new HttpEntity<>(updateRequest, headers));
+    restTemplate.put(
+        getV0ApiUrl("/workflows/" + workflowId + "/schedules/" + scheduleId),
+        new HttpEntity<>(updateRequest, headers));
 
     logSuccess("스케줄 수정 및 비활성화 성공");
   }
@@ -181,7 +191,8 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(getV0ApiUrl("/workflows"), new HttpEntity<>(workflowRequest, headers), Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows"), new HttpEntity<>(workflowRequest, headers), Map.class);
 
     System.out.println("==== response body ====");
     System.out.println(response.getBody());
@@ -189,11 +200,11 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
     ResponseEntity<Map> listResponse =
-            restTemplate.getForEntity(getV0ApiUrl("/workflows"), Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/workflows"), Map.class);
 
     Map<String, Object> body = listResponse.getBody();
-    List<Map<String, Object>> workflows = (List<Map<String, Object>>)
-            ((Map<String, Object>) body.get("data")).get("data");
+    List<Map<String, Object>> workflows =
+        (List<Map<String, Object>>) ((Map<String, Object>) body.get("data")).get("data");
 
     return Long.valueOf(workflows.get(workflows.size() - 1).get("id").toString());
   }
@@ -209,12 +220,15 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
-                    new HttpEntity<>(scheduleRequest, headers), Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
+            new HttpEntity<>(scheduleRequest, headers),
+            Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
-    return Long.valueOf(((Map<String, Object>) response.getBody().get("data")).get("id").toString());
+    return Long.valueOf(
+        ((Map<String, Object>) response.getBody().get("data")).get("id").toString());
   }
 
   /** 사용자 로그인을 수행하는 헬퍼 메서드 */
@@ -231,7 +245,7 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     HttpEntity<Map<String, String>> entity = new HttpEntity<>(loginRequest, headers);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(getV0ApiUrl("/auth/login"), entity, Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/login"), entity, Map.class);
 
     if (response.getStatusCode() != HttpStatus.OK) {
       logError("사용자 로그인 실패: " + response.getStatusCode());
