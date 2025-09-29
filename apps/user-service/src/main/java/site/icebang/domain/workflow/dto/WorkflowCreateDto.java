@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.util.CollectionUtils;
 import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 
 /**
@@ -134,6 +135,6 @@ public class WorkflowCreateDto {
    * @return 스케줄이 1개 이상 있으면 true
    */
   public boolean hasSchedules() {
-    return schedules != null && !schedules.isEmpty();
+    return !CollectionUtils.isEmpty(schedules);
   }
 }
