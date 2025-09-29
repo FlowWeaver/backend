@@ -31,8 +31,7 @@
         SELECT tr.*
         FROM task_run tr
                  JOIN task t ON tr.task_id = t.id
-        WHERE tr.job_run_id = #{jobRunId}
-          AND t.name = #{taskName}
+        where t.name = #{taskName}
           AND tr.status = 'SUCCESS'
         ORDER BY tr.id DESC
             LIMIT 1
