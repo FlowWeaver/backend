@@ -80,7 +80,7 @@ public class WorkflowCreateDto {
   // JSON 변환용 필드 (MyBatis에서 사용)
   private String defaultConfigJson;
 
-  public String genertateDefaultConfigJson() {
+  public String generateDefaultConfigJson() {
     StringBuilder jsonBuilder = new StringBuilder();
     jsonBuilder.append("{");
 
