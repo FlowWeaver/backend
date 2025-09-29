@@ -1,0 +1,1639 @@
+openapi: 3.0.1
+info:
+  title: IceBang API
+  description: IceBang API Documentation
+  version: 0.0.1-alpha-snapshot
+servers:
+- url: http://localhost:8080
+tags: []
+paths:
+  /v0/jobs:
+    post:
+      tags:
+      - Job
+      summary: Job 생성
+      description: 새로운 Job을 생성합니다
+      operationId: job-create
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/v0-jobs514928076"
+            examples:
+              job-create:
+                value: |-
+                  {
+                    "name" : "통합테스트 Job",
+                    "description" : "Integration Test용 Job",
+                    "isEnabled" : true
+                  }
+      responses:
+        "201":
+          description: "201"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-jobs1205740704"
+              examples:
+                job-create:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "id" : 4,
+                        "name" : "통합테스트 Job",
+                        "description" : "Integration Test용 Job",
+                        "isEnabled" : true,
+                        "createdAt" : "2025-09-29T10:01:49.929113Z",
+                        "createdBy" : null,
+                        "updatedAt" : "2025-09-29T10:01:49.929113Z",
+                        "updatedBy" : null,
+                        "executionOrder" : null
+                      }
+                    }
+  /v0/organizations:
+    get:
+      tags:
+      - Organization
+      summary: 조직 목록 조회
+      description: 시스템에 등록된 모든 조직의 목록을 조회합니다
+      operationId: organizations-list
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-organizations147125821"
+              examples:
+                organizations-list:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : [ {
+                        "id" : 11,
+                        "organizationName" : "icebang"
+                      }, {
+                        "id" : 13,
+                        "organizationName" : "디지털솔루션"
+                      }, {
+                        "id" : 14,
+                        "organizationName" : "크리에이티브웍스"
+                      }, {
+                        "id" : 12,
+                        "organizationName" : "테크이노베이션"
+                      } ],
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/auth/check-session:
+    get:
+      tags:
+      - Authentication
+      summary: 세션 확인 - 미인증 상태
+      description: 인증되지 않은 상태에서 세션 확인 시 401 Unauthorized를 반환합니다
+      operationId: auth-check-session-
+      responses:
+        "401":
+          description: "401"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/v0-auth-check-session1194557593"
+              examples:
+                auth-check-session-unauthenticated:
+                  value: |-
+                    {
+                      "success" : false,
+                      "data" : null,
+                      "message" : "Authentication required",
+                      "status" : "UNAUTHORIZED"
+                    }
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-auth-check-session-531153390"
+              examples:
+                auth-check-session-authenticated:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : true,
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/auth/login:
+    post:
+      tags:
+      - Authentication
+      summary: 사용자 로그인
+      description: 이메일과 비밀번호로 사용자 인증을 수행합니다
+      operationId: auth-login
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/v0-auth-login1104623872"
+            examples:
+              auth-login:
+                value: |-
+                  {
+                    "password" : "qwer1234!A",
+                    "email" : "admin@icebang.site"
+                  }
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-auth-login-534880983"
+              examples:
+                auth-login:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : null,
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/auth/logout:
+    post:
+      tags:
+      - Authentication
+      summary: 사용자 로그아웃
+      description: 현재 인증된 사용자의 세션을 무효화합니다
+      operationId: auth-logout
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-auth-login-534880983"
+              examples:
+                auth-logout:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : null,
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/auth/permissions:
+    get:
+      tags:
+      - Authentication
+      summary: 권한 정보 조회 - 인증된 상태
+      description: 현재 인증된 사용자의 상세 정보와 권한을 조회합니다
+      operationId: auth-get-permissions-
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-auth-permissions-359587215"
+              examples:
+                auth-get-permissions-authenticated:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "id" : 54,
+                        "email" : "admin@icebang.site",
+                        "password" : "qwer1234!A",
+                        "status" : "ACTIVE",
+                        "roles" : [ "SUPER_ADMIN" ],
+                        "enabled" : true,
+                        "username" : "admin@icebang.site",
+                        "authorities" : [ {
+                          "authority" : "ROLE_SUPER_ADMIN"
+                        } ],
+                        "accountNonExpired" : true,
+                        "accountNonLocked" : true,
+                        "credentialsNonExpired" : true
+                      },
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+        "401":
+          description: "401"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/v0-auth-check-session1194557593"
+              examples:
+                auth-get-permissions-unauthenticated:
+                  value: |-
+                    {
+                      "success" : false,
+                      "data" : null,
+                      "message" : "Authentication required",
+                      "status" : "UNAUTHORIZED"
+                    }
+  /v0/auth/register:
+    post:
+      tags:
+      - Authentication
+      summary: 사용자 회원가입 실패 - 필수 필드 누락
+      description: 필수 필드 누락으로 인한 회원가입 실패
+      operationId: auth-register-
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/v0-auth-register72792706"
+            examples:
+              auth-register-missing-fields:
+                value: |-
+                  {
+                    "email" : "test@icebang.site"
+                  }
+              auth-register-invalid-email:
+                value: |-
+                  {
+                    "roleIds" : [ 1 ],
+                    "positionId" : 1,
+                    "name" : "홍길동",
+                    "deptId" : 1,
+                    "email" : "invalid-email",
+                    "orgId" : 1
+                  }
+              auth-register-forbidden:
+                value: |-
+                  {
+                    "roleIds" : [ 1, 2 ],
+                    "positionId" : 1,
+                    "name" : "홍길동",
+                    "deptId" : 1,
+                    "email" : "hong@icebang.site",
+                    "orgId" : 1
+                  }
+              auth-register-unauthorized:
+                value: |-
+                  {
+                    "roleIds" : [ 1, 2 ],
+                    "positionId" : 1,
+                    "name" : "홍길동",
+                    "deptId" : 1,
+                    "email" : "hong@icebang.site",
+                    "orgId" : 1
+                  }
+      responses:
+        "400":
+          description: "400"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-auth-register530633601"
+              examples:
+                auth-register-missing-fields:
+                  value: |-
+                    {
+                      "success" : false,
+                      "data" : null,
+                      "message" : "입력 값 검증 실패: 조직 선택은 필수입니다, 사용자명은 필수입니다, 역할 선택은 필수입니다, 부서 선택은 필수입니다, 직책 선택은 필수입니다",
+                      "status" : "BAD_REQUEST"
+                    }
+                auth-register-invalid-email:
+                  value: |-
+                    {
+                      "success" : false,
+                      "data" : null,
+                      "message" : "입력 값 검증 실패: 올바른 이메일 형식이 아닙니다",
+                      "status" : "BAD_REQUEST"
+                    }
+        "403":
+          description: "403"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/v0-auth-register1952182353"
+              examples:
+                auth-register-forbidden:
+                  value: |-
+                    {
+                      "success" : false,
+                      "data" : null,
+                      "message" : "Access denied",
+                      "status" : "FORBIDDEN"
+                    }
+        "401":
+          description: "401"
+          content:
+            application/json;charset=UTF-8:
+              schema:
+                $ref: "#/components/schemas/v0-auth-register2120398246"
+              examples:
+                auth-register-unauthorized:
+                  value: |-
+                    {
+                      "success" : false,
+                      "data" : null,
+                      "message" : "Authentication required",
+                      "status" : "UNAUTHORIZED"
+                    }
+  /v0/jobs/{id}:
+    get:
+      tags:
+      - Job
+      summary: Job 조회
+      description: Job ID로 Job 정보를 조회합니다
+      operationId: job-get
+      parameters:
+      - name: id
+        in: path
+        description: ""
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-jobs-id1369261336"
+              examples:
+                job-get:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "id" : 1,
+                        "name" : "상품 분석",
+                        "description" : "키워드 검색, 상품 크롤링, S3 업로드, OCR 처리 및 상품 선택 작업",
+                        "isEnabled" : true,
+                        "createdAt" : "2025-09-29T10:01:50.037661Z",
+                        "createdBy" : 1,
+                        "updatedAt" : "2025-09-29T10:01:50.037661Z",
+                        "updatedBy" : null,
+                        "executionOrder" : null
+                      }
+                    }
+  /v0/users/check-email:
+    post:
+      tags:
+      - User
+      summary: 이메일 중복 검사 - 사용 불가
+      description: 이미 가입된 이메일에 대한 중복 검사 결과
+      operationId: check-email-
+      requestBody:
+        content:
+          application/json;charset=UTF-8:
+            schema:
+              $ref: "#/components/schemas/v0-users-check-email2033225582"
+            examples:
+              check-email-unavailable:
+                value: |-
+                  {
+                    "email" : "admin@icebang.site"
+                  }
+              check-email-available:
+                value: |-
+                  {
+                    "email" : "newuser@example.com"
+                  }
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-users-check-email337093057"
+              examples:
+                check-email-unavailable:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "available" : false
+                      },
+                      "message" : "이미 가입된 이메일입니다.",
+                      "status" : "OK"
+                    }
+                check-email-available:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "available" : true
+                      },
+                      "message" : "사용 가능한 이메일입니다.",
+                      "status" : "OK"
+                    }
+  /v0/users/me:
+    get:
+      tags:
+      - User
+      summary: 사용자 프로필 조회
+      description: 현재 로그인한 사용자의 프로필 정보를 조회합니다
+      operationId: user-profile
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-users-me-1380320879"
+              examples:
+                user-profile:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "id" : 144,
+                        "email" : "admin@icebang.site",
+                        "name" : "admin@icebang.site",
+                        "roles" : [ "SUPER_ADMIN" ],
+                        "status" : "ACTIVE"
+                      },
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/workflow-runs/logs:
+    get:
+      tags:
+      - Workflow History
+      summary: 실행 로그 조회 - traceId 필터
+      description: 특정 traceId로 워크플로우 실행 로그를 필터링하여 조회합니다
+      operationId: execution-log-
+      parameters:
+      - name: traceId
+        in: query
+        description: 추적 ID
+        required: false
+        schema:
+          type: string
+      - name: executionType
+        in: query
+        description: "실행 타입 (WORKFLOW, JOB, TASK)"
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-workflow-runs-logs1120938885"
+              examples:
+                execution-log-by-trace-id:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : [ {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=7, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Job 실행 실패: JobRunId=1",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "---------- Job 실행 시작: JobId=2, JobRunId=2 ----------",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Job (JobRunId=2) 내 총 2개의 Task를 순차 실행합니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=8, Name=블로그 RAG 생성 태스크",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=8, TaskRunId=8",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=8, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=9, Name=블로그 발행 태스크",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=9, TaskRunId=9",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=9, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Job 실행 실패: JobRunId=2",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "========== 워크플로우 실행 실패 : WorkflowRunId=1 ==========",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "========== 워크플로우 실행 시작: WorkflowId=1 ==========",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "총 2개의 Job을 순차적으로 실행합니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "---------- Job 실행 시작: JobId=1, JobRunId=1 ----------",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Job (JobRunId=1) 내 총 7개의 Task를 순차 실행합니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=1, Name=키워드 검색 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=1, TaskRunId=1",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=1, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=2, Name=상품 검색 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=2, TaskRunId=2",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=2, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=3, Name=상품 매칭 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=3, TaskRunId=3",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=3, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=4, Name=상품 유사도 분석 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=4, TaskRunId=4",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=4, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=5, Name=상품 정보 크롤링 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=5, TaskRunId=5",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=5, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=6, Name=S3 업로드 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=6, TaskRunId=6",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=6, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=7, Name=상품 선택 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=7, TaskRunId=7",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      } ],
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+                execution-log-all:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : [ {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=7, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Job 실행 실패: JobRunId=1",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "---------- Job 실행 시작: JobId=2, JobRunId=2 ----------",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Job (JobRunId=2) 내 총 2개의 Task를 순차 실행합니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=8, Name=블로그 RAG 생성 태스크",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=8, TaskRunId=8",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=8, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=9, Name=블로그 발행 태스크",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=9, TaskRunId=9",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=9, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Job 실행 실패: JobRunId=2",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "========== 워크플로우 실행 실패 : WorkflowRunId=1 ==========",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "========== 워크플로우 실행 시작: WorkflowId=1 ==========",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "총 2개의 Job을 순차적으로 실행합니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "---------- Job 실행 시작: JobId=1, JobRunId=1 ----------",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Job (JobRunId=1) 내 총 7개의 Task를 순차 실행합니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=1, Name=키워드 검색 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=1, TaskRunId=1",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=1, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=2, Name=상품 검색 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=2, TaskRunId=2",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=2, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=3, Name=상품 매칭 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=3, TaskRunId=3",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=3, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=4, Name=상품 유사도 분석 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=4, TaskRunId=4",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=4, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=5, Name=상품 정보 크롤링 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=5, TaskRunId=5",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=5, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=6, Name=S3 업로드 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=6, TaskRunId=6",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=6, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=7, Name=상품 선택 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=7, TaskRunId=7",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      } ],
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+                execution-log-by-execution-type:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : [ {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=7, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=8, Name=블로그 RAG 생성 태스크",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=8, TaskRunId=8",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=8, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=9, Name=블로그 발행 태스크",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=9, TaskRunId=9",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=9, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:03Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=1, Name=키워드 검색 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=1, TaskRunId=1",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=1, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=2, Name=상품 검색 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=2, TaskRunId=2",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=2, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=3, Name=상품 매칭 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=3, TaskRunId=3",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=3, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=4, Name=상품 유사도 분석 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=4, TaskRunId=4",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=4, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=5, Name=상품 정보 크롤링 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=5, TaskRunId=5",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=5, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=6, Name=S3 업로드 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=6, TaskRunId=6",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "ERROR",
+                        "logMessage" : "Task 최종 실패: TaskRunId=6, Message=FastApiAdapter 호출에 실패했습니다.",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시작: TaskId=7, Name=상품 선택 태스크",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      }, {
+                        "logLevel" : "INFO",
+                        "logMessage" : "Task 실행 시도 #1: TaskId=7, TaskRunId=7",
+                        "executedAt" : "2025-09-26T12:42:02Z"
+                      } ],
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/workflow-runs/{runId}:
+    get:
+      tags:
+      - Workflow History
+      summary: 워크플로우 실행 상세 조회
+      description: 워크플로우 실행 ID로 상세 정보를 조회합니다.
+      operationId: workflow-run-detail
+      parameters:
+      - name: runId
+        in: path
+        description: ""
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-workflow-runs-runId-528792213"
+              examples:
+                workflow-run-detail:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "traceId" : "3e3c832d-b51f-48ea-95f9-98f0ae6d3413",
+                        "workflowRun" : {
+                          "id" : 1,
+                          "workflowId" : 1,
+                          "workflowName" : "상품 분석 및 블로그 자동 발행",
+                          "workflowDescription" : "키워드 검색부터 상품 분석 후 블로그 발행까지의 자동화 프로세스",
+                          "runNumber" : null,
+                          "status" : "FAILED",
+                          "triggerType" : null,
+                          "startedAt" : "2025-09-22T18:18:43Z",
+                          "finishedAt" : "2025-09-22T18:18:44Z",
+                          "durationMs" : 1000,
+                          "createdBy" : null,
+                          "createdAt" : "2025-09-29T10:02:06.539061Z"
+                        },
+                        "jobRuns" : [ {
+                          "id" : 1,
+                          "workflowRunId" : 1,
+                          "jobId" : 1,
+                          "jobName" : "상품 분석",
+                          "jobDescription" : "키워드 검색, 상품 크롤링, S3 업로드, OCR 처리 및 상품 선택 작업",
+                          "status" : "FAILED",
+                          "executionOrder" : null,
+                          "startedAt" : "2025-09-22T18:18:44Z",
+                          "finishedAt" : "2025-09-22T18:18:44Z",
+                          "durationMs" : 0,
+                          "taskRuns" : [ {
+                            "id" : 1,
+                            "jobRunId" : 1,
+                            "taskId" : 1,
+                            "taskName" : "키워드 검색 태스크",
+                            "taskDescription" : null,
+                            "taskType" : "FastAPI",
+                            "status" : "FAILED",
+                            "executionOrder" : null,
+                            "startedAt" : "2025-09-22T18:18:44Z",
+                            "finishedAt" : "2025-09-22T18:18:44Z",
+                            "durationMs" : 0
+                          } ]
+                        } ]
+                      },
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/organizations/{organizationId}/options:
+    get:
+      tags:
+      - Organization
+      summary: 조직 옵션 정보 조회
+      description: "특정 조직의 부서, 직급, 역할 옵션 정보를 조회합니다"
+      operationId: organizations-options
+      parameters:
+      - name: organizationId
+        in: path
+        description: 조직 ID
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: "200"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/v0-organizations-organizationId-options-50182786"
+              examples:
+                organizations-options:
+                  value: |-
+                    {
+                      "success" : true,
+                      "data" : {
+                        "departments" : [ {
+                          "id" : 79,
+                          "name" : "AI개발팀"
+                        }, {
+                          "id" : 84,
+                          "name" : "기획팀"
+                        }, {
+                          "id" : 80,
+                          "name" : "데이터팀"
+                        }, {
+                          "id" : 82,
+                          "name" : "마케팅팀"
+                        }, {
+                          "id" : 83,
+                          "name" : "운영팀"
+                        }, {
+                          "id" : 81,
+                          "name" : "콘텐츠팀"
+                        } ],
+                        "positions" : [ {
+                          "id" : 84,
+                          "title" : "CEO"
+                        }, {
+                          "id" : 85,
+                          "title" : "CTO"
+                        }, {
+                          "id" : 87,
+                          "title" : "시니어"
+                        }, {
+                          "id" : 89,
+                          "title" : "인턴"
+                        }, {
+                          "id" : 88,
+                          "title" : "주니어"
+                        }, {
+                          "id" : 86,
+                          "title" : "팀장"
+                        } ],
+                        "roles" : [ {
+                          "id" : 164,
+                          "name" : "AI_ENGINEER",
+                          "description" : "AI 엔지니어 - AI 모델 개발 및 최적화"
+                        }, {
+                          "id" : 167,
+                          "name" : "CONTENT_CREATOR",
+                          "description" : "콘텐츠 크리에이터 - 바이럴 콘텐츠 제작"
+                        }, {
+                          "id" : 168,
+                          "name" : "CONTENT_MANAGER",
+                          "description" : "콘텐츠 매니저 - 콘텐츠 기획 및 관리"
+                        }, {
+                          "id" : 166,
+                          "name" : "CRAWLING_ENGINEER",
+                          "description" : "크롤링 엔지니어 - 웹 크롤링 시스템 개발"
+                        }, {
+                          "id" : 165,
+                          "name" : "DATA_SCIENTIST",
+                          "description" : "데이터 사이언티스트 - 데이터 분석 및 인사이트 도출"
+                        }, {
+                          "id" : 170,
+                          "name" : "MARKETING_ANALYST",
+                          "description" : "마케팅 분석가 - 마케팅 성과 분석"
+                        }, {
+                          "id" : 171,
+                          "name" : "OPERATIONS_MANAGER",
+                          "description" : "운영 매니저 - 시스템 운영 및 모니터링"
+                        }, {
+                          "id" : 169,
+                          "name" : "WORKFLOW_ADMIN",
+                          "description" : "워크플로우 관리자 - 자동화 프로세스 관리"
+                        } ]
+                      },
+                      "message" : "OK",
+                      "status" : "OK"
+                    }
+  /v0/workflows/{workflowId}/run:
+    post:
+      tags:
+      - Workflow Execution
+      summary: 워크플로우 수동 실행
+      description: "지정된 ID의 워크플로우를 즉시 비동기적으로 실행합니다. 성공 시 202 Accepted를 반환하며, 실제 실행\
+        은 백그라운드에서 진행됩니다."
+      operationId: workflow-run
+      parameters:
+      - name: workflowId
+        in: path
+        description: ""
+        required: true
+        schema:
+          type: string
+      responses:
+        "202":
+          description: "202"
+components:
+  schemas:
+    v0-auth-permissions-359587215:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            password:
+              type: string
+              description: 사용자 비밀번호
+            credentialsNonExpired:
+              type: boolean
+              description: 자격증명 만료 여부
+            roles:
+              type: array
+              description: 사용자 권한 목록
+              items:
+                oneOf:
+                - type: object
+                - type: boolean
+                - type: string
+                - type: number
+            accountNonExpired:
+              type: boolean
+              description: 계정 만료 여부
+            id:
+              type: number
+              description: 사용자 고유 ID
+            authorities:
+              type: array
+              description: Spring Security 권한 목록
+              items:
+                type: object
+                properties:
+                  authority:
+                    type: string
+                    description: 개별 권한
+            enabled:
+              type: boolean
+              description: 계정 활성화 여부
+            email:
+              type: string
+              description: 사용자 이메일 주소
+            accountNonLocked:
+              type: boolean
+              description: 계정 잠금 여부
+            username:
+              type: string
+              description: 사용자명 (이메일과 동일)
+            status:
+              type: string
+              description: 사용자 계정 상태
+          description: 사용자 인증 정보
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-auth-register530633601:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 에러 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-auth-register2120398246:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 인증 에러 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-auth-check-session-531153390:
+      type: object
+      properties:
+        data:
+          type: boolean
+          description: 세션 유효 여부 (인증된 경우 true)
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-jobs-id1369261336:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            createdAt:
+              type: string
+              description: 생성 시간
+            updatedBy:
+              type: number
+              description: 수정자 ID
+            createdBy:
+              type: number
+              description: 생성자 ID
+            isEnabled:
+              type: boolean
+              description: 활성화 여부
+            name:
+              type: string
+              description: Job 이름
+            description:
+              type: string
+              description: Job 설명
+            id:
+              type: number
+              description: Job ID
+            executionOrder:
+              type: number
+              description: 실행 순서
+            updatedAt:
+              type: string
+              description: 수정 시간
+          description: Job 정보
+        success:
+          type: boolean
+          description: 요청 성공 여부
+    v0-users-me-1380320879:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            roles:
+              type: array
+              description: 사용자 권한 목록
+              items:
+                oneOf:
+                - type: object
+                - type: boolean
+                - type: string
+                - type: number
+            name:
+              type: string
+              description: 사용자 이름
+            id:
+              type: number
+              description: 사용자 ID
+            email:
+              type: string
+              description: 사용자 이메일
+            status:
+              type: string
+              description: "사용자 상태 (ACTIVE, INACTIVE)"
+          description: 사용자 정보
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-auth-check-session1194557593:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 요청 성공 여부 (미인증 시 false)
+        message:
+          type: string
+          description: 응답 메시지 (Authentication required)
+        status:
+          type: string
+          description: HTTP 상태 (UNAUTHORIZED)
+    v0-auth-register1952182353:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 권한 에러 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-workflow-runs-runId-528792213:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            traceId:
+              type: string
+              description: 워크플로우 실행 추적 ID
+            workflowRun:
+              type: object
+              properties:
+                createdAt:
+                  type: string
+                  description: 생성 시간 (UTC)
+                startedAt:
+                  type: string
+                  description: 시작 시간 (UTC)
+                workflowName:
+                  type: string
+                  description: 워크플로우 이름
+                id:
+                  type: number
+                  description: 워크플로우 실행 ID
+                workflowDescription:
+                  type: string
+                  description: 워크플로우 설명
+                durationMs:
+                  type: number
+                  description: 실행 시간(ms)
+                workflowId:
+                  type: number
+                  description: 워크플로우 설계 ID
+                finishedAt:
+                  type: string
+                  description: 완료 시간 (UTC)
+                status:
+                  type: string
+                  description: 실행 상태
+              description: 워크플로우 실행 정보
+            jobRuns:
+              type: array
+              description: Job 실행 목록
+              items:
+                type: object
+                properties:
+                  jobName:
+                    type: string
+                    description: Job 이름
+                  taskRuns:
+                    type: array
+                    description: Task 실행 목록
+                    items:
+                      type: object
+                      properties:
+                        taskType:
+                          type: string
+                          description: Task 유형
+                        startedAt:
+                          type: string
+                          description: Task 시작 시간 (UTC)
+                        taskName:
+                          type: string
+                          description: Task 이름
+                        id:
+                          type: number
+                          description: Task 실행 ID
+                        jobRunId:
+                          type: number
+                          description: Job 실행 ID
+                        durationMs:
+                          type: number
+                          description: Task 실행 시간(ms)
+                        taskId:
+                          type: number
+                          description: Task 설계 ID
+                        finishedAt:
+                          type: string
+                          description: Task 완료 시간 (UTC)
+                        status:
+                          type: string
+                          description: Task 실행 상태
+                  jobId:
+                    type: number
+                    description: Job 설계 ID
+                  startedAt:
+                    type: string
+                    description: Job 시작 시간 (UTC)
+                  jobDescription:
+                    type: string
+                    description: Job 설명
+                  id:
+                    type: number
+                    description: Job 실행 ID
+                  durationMs:
+                    type: number
+                    description: Job 실행 시간(ms)
+                  workflowRunId:
+                    type: number
+                    description: 워크플로우 실행 ID
+                  finishedAt:
+                    type: string
+                    description: Job 완료 시간 (UTC)
+                  status:
+                    type: string
+                    description: Job 실행 상태
+          description: 응답 데이터
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-auth-register72792706:
+      type: object
+      properties:
+        roleIds:
+          type: array
+          description: 역할 ID 목록
+          items:
+            oneOf:
+            - type: object
+            - type: boolean
+            - type: string
+            - type: number
+        positionId:
+          type: number
+          description: 직책 ID
+        deptId:
+          type: number
+          description: 부서 ID
+        name:
+          type: string
+          description: 사용자명
+        orgId:
+          type: number
+          description: 조직 ID
+        email:
+          type: string
+          description: 사용자 이메일 주소
+    v0-workflow-runs-logs1120938885:
+      type: object
+      properties:
+        data:
+          type: array
+          description: 실행 로그 목록
+          items:
+            type: object
+            properties:
+              executedAt:
+                type: string
+                description: 실행 시간 (UTC ISO-8601)
+              logLevel:
+                type: string
+                description: "로그 레벨 (INFO, ERROR, WARN, DEBUG)"
+              logMessage:
+                type: string
+                description: 로그 메시지
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-users-check-email337093057:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            available:
+              type: boolean
+              description: "이메일 사용 가능 여부 (true: 사용 가능, false: 이미 사용 중)"
+          description: 응답 데이터
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-auth-login1104623872:
+      type: object
+      properties:
+        password:
+          type: string
+          description: 사용자 비밀번호
+        email:
+          type: string
+          description: 사용자 이메일 주소
+    v0-auth-login-534880983:
+      type: object
+      properties:
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-organizations147125821:
+      type: object
+      properties:
+        data:
+          type: array
+          description: 조직 목록
+          items:
+            type: object
+            properties:
+              organizationName:
+                type: string
+                description: 조직명
+              id:
+                type: number
+                description: 조직 ID
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-organizations-organizationId-options-50182786:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            roles:
+              type: array
+              description: 역할 목록
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: 역할명
+                  description:
+                    type: string
+                    description: 역할 설명
+                  id:
+                    type: number
+                    description: 역할 ID
+            positions:
+              type: array
+              description: 직급 목록
+              items:
+                type: object
+                properties:
+                  id:
+                    type: number
+                    description: 직급 ID
+                  title:
+                    type: string
+                    description: 직급명
+            departments:
+              type: array
+              description: 부서 목록
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                    description: 부서명
+                  id:
+                    type: number
+                    description: 부서 ID
+          description: 옵션 데이터
+        success:
+          type: boolean
+          description: 요청 성공 여부
+        message:
+          type: string
+          description: 응답 메시지
+        status:
+          type: string
+          description: HTTP 상태
+    v0-jobs514928076:
+      type: object
+      properties:
+        isEnabled:
+          type: boolean
+          description: "활성화 여부 (선택, 기본값: true)"
+        name:
+          type: string
+          description: Job 이름 (필수)
+        description:
+          type: string
+          description: Job 설명 (선택)
+    v0-users-check-email2033225582:
+      type: object
+      properties:
+        email:
+          type: string
+          description: 검사할 이메일 주소
+    v0-jobs1205740704:
+      type: object
+      properties:
+        data:
+          type: object
+          properties:
+            createdAt:
+              type: string
+              description: 생성 시간
+            updatedBy:
+              type: number
+              description: 수정자 ID
+            createdBy:
+              type: number
+              description: 생성자 ID
+            isEnabled:
+              type: boolean
+              description: 활성화 여부
+            name:
+              type: string
+              description: Job 이름
+            description:
+              type: string
+              description: Job 설명
+            id:
+              type: number
+              description: Job ID
+            executionOrder:
+              type: number
+              description: 실행 순서
+            updatedAt:
+              type: string
+              description: 수정 시간
+          description: 생성된 Job 정보
+        success:
+          type: boolean
+          description: 요청 성공 여부
