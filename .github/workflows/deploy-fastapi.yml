@@ -43,7 +43,8 @@ jobs:
           echo "IMAGE_DOWNLOAD_TIMEOUT=${{ secrets.IMAGE_DOWNLOAD_TIMEOUT }}" >> .env.prod
           echo "MAX_IMAGE_SIZE_MB=${{ secrets.MAX_IMAGE_SIZE_MB }}" >> .env.prod
           echo "MECAB_PATH=${{ secrets.MECAB_PATH }}" >> .env.prod
-          echo "MECABRC=${{ secrets.MECABRC }}" >> .env.prod          
+          echo "MECABRC=${{ secrets.MECABRC }}" >> .env.prod
+          echo "GOOGLE_APPLICATION_CREDENTIALS=${{ secrets.GOOGLE_APPLICATION_CREDENTIALS }}" >> .env.prod
 
       - name: Set repo lowercase
         run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
