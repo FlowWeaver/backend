@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import site.icebang.common.dto.PageParams;
 import site.icebang.common.dto.PageResult;
+import site.icebang.common.exception.DuplicateDataException;
 import site.icebang.common.service.PageableService;
 import site.icebang.domain.schedule.dto.ScheduleDto;
 import site.icebang.domain.schedule.service.ScheduleService;
@@ -124,7 +125,7 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
 
     // 4. 워크플로우 이름 중복 체크
     if (workflowMapper.existsByName(dto.getName())) {
-      throw new IllegalArgumentException("이미 존재하는 워크플로우 이름입니다: " + dto.getName());
+      throw new DuplicateDataException("이미 존재하는 워크플로우 이름입니다: " + dto.getName());
     }
 
     // 5. 워크플로우 생성
