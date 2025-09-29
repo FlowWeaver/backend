@@ -44,14 +44,7 @@ public class ScheduleService {
   @Transactional
   public Schedule createSchedule(Long workflowId, ScheduleCreateDto dto, Long userId) {
     // 1. Schedule 엔티티 생성
-    Schedule schedule =
-        Schedule.builder()
-            .workflowId(workflowId)
-            .cronExpression(dto.getCronExpression())
-            .scheduleText(dto.getScheduleText())
-            .isActive(dto.getIsActive())
-            .createdBy(userId)
-            .build();
+    Schedule schedule = ScheduleCreateDto.toEntity(dto, workflowId, userId);
 
     // 2. DB에 저장
     scheduleMapper.insertSchedule(schedule);
