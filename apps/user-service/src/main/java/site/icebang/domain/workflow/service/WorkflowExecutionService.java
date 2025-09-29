@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -51,7 +50,6 @@ public class WorkflowExecutionService {
   private final TaskExecutionService taskExecutionService;
   private final WorkflowMapper workflowMapper;
 
-  @Transactional
   @Async("traceExecutor")
   public void executeWorkflow(Long workflowId, RequestContext context) {
     WorkflowRun workflowRun = WorkflowRun.start(workflowId, context.getTraceId());
