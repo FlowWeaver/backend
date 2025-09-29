@@ -1,8 +1,5 @@
 package site.icebang.domain.workflow.runner.fastapi.body;
 
-import java.util.Map;
-
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import site.icebang.domain.workflow.model.JobRun;
@@ -17,7 +14,6 @@ public interface TaskBodyBuilder {
    * @return 지원하면 true, 아니면 false
    */
   boolean supports(String taskName);
-
 
   // 📌 workflowContext(Map) 대신 JobRun 객체를 받도록 변경
   ObjectNode build(Task task, JobRun jobRun);

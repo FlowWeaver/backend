@@ -1,6 +1,5 @@
 package site.icebang.domain.workflow.runner.fastapi.body;
 
-import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.stereotype.Component;
@@ -32,11 +31,11 @@ public class ProductSearchBodyBuilder implements TaskBodyBuilder {
 
   @Override
   public ObjectNode build(Task task, JobRun jobRun) {
-    Optional<JsonNode> sourceResult = contextService.getPreviousTaskOutput(jobRun, SOURCE_TASK_NAME);
+    Optional<JsonNode> sourceResult =
+        contextService.getPreviousTaskOutput(jobRun, SOURCE_TASK_NAME);
 
-    String keyword = sourceResult
-            .map(result -> result.path("data").path("keyword").asText(""))
-            .orElse("");
+    String keyword =
+        sourceResult.map(result -> result.path("data").path("keyword").asText("")).orElse("");
 
     return objectMapper.createObjectNode().put("keyword", keyword);
   }

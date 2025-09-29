@@ -1,15 +1,18 @@
 package site.icebang.domain.workflow.runner.fastapi.body;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+
 import site.icebang.domain.workflow.model.JobRun;
 import site.icebang.domain.workflow.model.Task;
 import site.icebang.domain.workflow.service.WorkflowContextService;
-
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
@@ -29,11 +32,10 @@ public class S3UploadBodyBuilder implements TaskBodyBuilder {
   }
 
   /**
-   * 여러 이전 Task들의 결과를 DB에서 조회하고 조합하여
-   * 'S3 업로드'를 위한 Request Body를 생성합니다.
+   * 여러 이전 Task들의 결과를 DB에서 조회하고 조합하여 'S3 업로드'를 위한 Request Body를 생성합니다.
    *
-   * @param task      실행할 Task의 도메인 모델
-   * @param jobRun    현재 실행 중인 Job의 기록 객체 (이전 Task 결과를 조회하는 키로 사용)
+   * @param task 실행할 Task의 도메인 모델
+   * @param jobRun 현재 실행 중인 Job의 기록 객체 (이전 Task 결과를 조회하는 키로 사용)
    * @return 생성된 JSON Body
    */
   @Override
@@ -41,18 +43,20 @@ public class S3UploadBodyBuilder implements TaskBodyBuilder {
     ObjectNode body = objectMapper.createObjectNode();
 
     // 1. 컨텍스트 서비스를 통해 DB에서 '키워드 검색 태스크'의 결과를 조회
-    Optional<JsonNode> keywordResult = contextService.getPreviousTaskOutput(jobRun, KEYWORD_SOURCE_TASK);
+    Optional<JsonNode> keywordResult =
+        contextService.getPreviousTaskOutput(jobRun, KEYWORD_SOURCE_TASK);
     keywordResult
-            .map(node -> node.path("data").path("keyword"))
-            .filter(node -> !node.isMissingNode() && !node.asText().trim().isEmpty())
-            .ifPresent(keywordNode -> body.set("keyword", keywordNode));
+        .map(node -> node.path("data").path("keyword"))
+        .filter(node -> !node.isMissingNode() && !node.asText().trim().isEmpty())
+        .ifPresent(keywordNode -> body.set("keyword", keywordNode));
 
     // 2. 컨텍스트 서비스를 통해 DB에서 '상품 정보 크롤링 태스크'의 결과를 조회
-    Optional<JsonNode> crawlResult = contextService.getPreviousTaskOutput(jobRun, CRAWL_SOURCE_TASK);
+    Optional<JsonNode> crawlResult =
+        contextService.getPreviousTaskOutput(jobRun, CRAWL_SOURCE_TASK);
     crawlResult
-            .map(node -> node.path("data").path("crawled_products"))
-            .filter(node -> !node.isMissingNode())
-            .ifPresent(crawledProductsNode -> body.set("crawled_products", crawledProductsNode));
+        .map(node -> node.path("data").path("crawled_products"))
+        .filter(node -> !node.isMissingNode())
+        .ifPresent(crawledProductsNode -> body.set("crawled_products", crawledProductsNode));
 
     // 3. 정적 데이터 설정
     body.put("base_folder", "product");
