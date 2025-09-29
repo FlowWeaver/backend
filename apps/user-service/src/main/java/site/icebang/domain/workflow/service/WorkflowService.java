@@ -145,9 +145,9 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
 
       Object generatedId = params.get("id");
       workflowId =
-              (generatedId instanceof BigInteger)
-                      ? ((BigInteger) generatedId).longValue()
-                      : ((Number) generatedId).longValue();
+          (generatedId instanceof BigInteger)
+              ? ((BigInteger) generatedId).longValue()
+              : ((Number) generatedId).longValue();
 
       log.info("워크플로우 생성 완료: {} (ID: {}, 생성자: {})", dto.getName(), workflowId, createdBy);
 
@@ -159,10 +159,7 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
     // 6. 스케줄 등록 - ScheduleService로 위임
     if (dto.hasSchedules() && workflowId != null) {
       scheduleService.validateAndRegisterSchedules(
-              workflowId,
-              dto.getSchedules(),
-              createdBy.longValue()
-      );
+          workflowId, dto.getSchedules(), createdBy.longValue());
     }
   }
 
@@ -374,7 +371,6 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
 
     // 2. 워크플로우 비활성화 (논리 삭제)
     deactivateWorkflow(workflowId);
-
 
     log.info("워크플로우 삭제 완료: Workflow ID {}", workflowId);
   }

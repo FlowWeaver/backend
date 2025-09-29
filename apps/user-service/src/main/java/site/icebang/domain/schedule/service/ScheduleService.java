@@ -9,11 +9,11 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.domain.schedule.mapper.ScheduleMapper;
-import site.icebang.domain.schedule.model.Schedule;
+import site.icebang.common.exception.DuplicateDataException;
 import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 import site.icebang.domain.schedule.dto.ScheduleUpdateDto;
-import site.icebang.common.exception.DuplicateDataException;
+import site.icebang.domain.schedule.mapper.ScheduleMapper;
+import site.icebang.domain.schedule.model.Schedule;
 
 /**
  * 스케줄 관리를 위한 비즈니스 로직을 처리하는 서비스 클래스입니다.
@@ -240,9 +240,7 @@ public class ScheduleService {
    */
   @Transactional
   public void validateAndRegisterSchedules(
-          Long workflowId,
-          List<ScheduleCreateDto> scheduleDtos,
-          Long userId) {
+      Long workflowId, List<ScheduleCreateDto> scheduleDtos, Long userId) {
 
     // 1. 검증
     validateSchedules(scheduleDtos);
@@ -253,9 +251,7 @@ public class ScheduleService {
     }
   }
 
-  /**
-   * 스케줄 목록 검증 (크론 표현식 유효성 및 중복 검사)
-   */
+  /** 스케줄 목록 검증 (크론 표현식 유효성 및 중복 검사) */
   public void validateSchedules(List<ScheduleCreateDto> schedules) {
     if (schedules == null || schedules.isEmpty()) {
       return;
@@ -279,9 +275,7 @@ public class ScheduleService {
     }
   }
 
-  /**
-   * 워크플로우의 모든 스케줄을 비활성화합니다.
-   */
+  /** 워크플로우의 모든 스케줄을 비활성화합니다. */
   @Transactional
   public void deactivateAllByWorkflowId(Long workflowId) {
     log.info("워크플로우 스케줄 일괄 비활성화: Workflow ID {}", workflowId);
@@ -293,9 +287,7 @@ public class ScheduleService {
     quartzScheduleService.deleteSchedule(workflowId);
   }
 
-  /**
-   * 워크플로우의 활성 스케줄을 Quartz에 재등록합니다.
-   */
+  /** 워크플로우의 활성 스케줄을 Quartz에 재등록합니다. */
   @Transactional
   public int reactivateAllByWorkflowId(Long workflowId) {
     log.info("워크플로우 스케줄 일괄 재활성화: Workflow ID {}", workflowId);

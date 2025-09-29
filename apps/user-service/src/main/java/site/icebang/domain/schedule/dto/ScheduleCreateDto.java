@@ -92,13 +92,13 @@ public class ScheduleCreateDto {
    */
   public static Schedule toEntity(ScheduleCreateDto dto, Long workflowId, Long userId) {
     return Schedule.builder()
-            .workflowId(workflowId)
-            .cronExpression(dto.cronExpression)
-            .scheduleText(dto.scheduleText)
-            .isActive(dto.isActive != null ? dto.isActive : true)
-            .parameters(dto.parameters)
-            .createdBy(userId)
-            .updatedBy(userId)
-            .build();
+        .workflowId(workflowId)
+        .cronExpression(dto.cronExpression)
+        .scheduleText(dto.scheduleText)
+        .isActive(dto.isActive != null ? dto.isActive : true)
+        .parameters(dto.parameters)
+        .createdBy(userId)
+        .updatedBy(userId)
+        .build();
   }
 }

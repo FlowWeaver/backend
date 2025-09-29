@@ -128,14 +128,14 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
 
     logStep(1, "스케줄 목록 조회 API 호출");
     ResponseEntity<Map> response =
-            restTemplate.getForEntity(
-                    getV0ApiUrl("/workflows/" + workflowId + "/schedules"), Map.class);
+        restTemplate.getForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"), Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat((Boolean) response.getBody().get("success")).isTrue();
 
     List<Map<String, Object>> schedules =
-            (List<Map<String, Object>>) response.getBody().get("data");
+        (List<Map<String, Object>>) response.getBody().get("data");
 
     assertThat(schedules).hasSizeGreaterThanOrEqualTo(2);
 
@@ -191,25 +191,23 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-            restTemplate.postForEntity(
-                    getV0ApiUrl("/workflows"),
-                    new HttpEntity<>(workflowRequest, headers),
-                    Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows"), new HttpEntity<>(workflowRequest, headers), Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
     ResponseEntity<Map> listResponse =
-            restTemplate.getForEntity(getV0ApiUrl("/workflows"), Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/workflows"), Map.class);
 
     Map<String, Object> body = listResponse.getBody();
     List<Map<String, Object>> workflows =
-            (List<Map<String, Object>>) ((Map<String, Object>) body.get("data")).get("data");
+        (List<Map<String, Object>>) ((Map<String, Object>) body.get("data")).get("data");
 
     return workflows.stream()
-            .filter(w -> name.equals(w.get("name")))
-            .findFirst()
-            .map(w -> Long.valueOf(w.get("id").toString()))
-            .orElseThrow(() -> new RuntimeException("생성한 워크플로우를 찾을 수 없습니다"));
+        .filter(w -> name.equals(w.get("name")))
+        .findFirst()
+        .map(w -> Long.valueOf(w.get("id").toString()))
+        .orElseThrow(() -> new RuntimeException("생성한 워크플로우를 찾을 수 없습니다"));
   }
 
   /** 스케줄 추가 헬퍼 */

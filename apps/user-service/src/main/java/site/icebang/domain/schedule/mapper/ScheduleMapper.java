@@ -101,5 +101,4 @@ public interface ScheduleMapper {
    * @return 스케줄 정보, 없으면 null
    */
   Schedule findById(@Param("id") Long id);
-
 }

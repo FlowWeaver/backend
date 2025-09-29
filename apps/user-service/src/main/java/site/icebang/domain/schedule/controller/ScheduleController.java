@@ -12,10 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import site.icebang.common.dto.ApiResponse;
 import site.icebang.domain.auth.model.AuthCredential;
-import site.icebang.domain.schedule.model.Schedule;
-import site.icebang.domain.schedule.service.ScheduleService;
 import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 import site.icebang.domain.schedule.dto.ScheduleUpdateDto;
+import site.icebang.domain.schedule.model.Schedule;
+import site.icebang.domain.schedule.service.ScheduleService;
 
 /**
  * 스케줄 관리를 위한 REST API 컨트롤러입니다.

@@ -3,6 +3,8 @@ package site.icebang.domain.workflow.dto;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
@@ -11,7 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.util.CollectionUtils;
+
 import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 
 /**
