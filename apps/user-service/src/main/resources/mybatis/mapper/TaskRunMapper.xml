@@ -26,4 +26,15 @@
             finished_at = #{finishedAt}
         WHERE id = #{id}
     </update>
+
+    <select id="findLatestSuccessRunInJob" resultType="site.icebang.domain.workflow.model.TaskRun">
+        SELECT tr.*
+        FROM task_run tr
+                 JOIN task t ON tr.task_id = t.id
+        WHERE tr.job_run_id = #{jobRunId}
+          AND t.name = #{taskName}
+          AND tr.status = 'SUCCESS'
+        ORDER BY tr.id DESC
+            LIMIT 1
+    </select>
 </mapper>

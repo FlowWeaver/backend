@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="site.icebang.domain.workflow.mapper.TaskIoDataMapper">
+    <insert id="insert" parameterType="site.icebang.domain.workflow.model.TaskIoData">
+        INSERT INTO task_io_data (task_run_id, io_type, name, data_type, data_value, data_size, created_at)
+        VALUES (#{taskRunId}, #{ioType}, #{name}, #{dataType}, #{dataValue}, #{dataSize}, #{createdAt})
+    </insert>
+
+    <select id="findOutputByTaskRunId" resultType="site.icebang.domain.workflow.model.TaskIoData">
+        SELECT * FROM task_io_data
+        WHERE task_run_id = #{taskRunId} AND io_type = 'OUTPUT'
+        ORDER BY id DESC
+            LIMIT 1
+    </select>
+
+    <select id="findByTaskRunIds" resultType="site.icebang.domain.workflow.model.TaskIoData">
+        SELECT * FROM task_io_data
+        WHERE task_run_id IN
+        <foreach collection="taskRunIds" item="taskRunId" open="(" separator="," close=")">
+            #{taskRunId}
+        </foreach>
+        <if test="ioType != null and ioType != ''">
+            AND io_type = #{ioType}
+        </if>
+        ORDER BY created_at DESC
+        <if test="limit != null">
+            LIMIT #{limit}
+        </if>
+    </select>
+</mapper>

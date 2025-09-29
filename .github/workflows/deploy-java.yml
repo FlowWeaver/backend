@@ -1,9 +1,6 @@
 name: Deploy
 
 on:
-  push:
-    branches:
-      - fix/**
   workflow_run:
     workflows: ["CI (Java)"]
     types: [completed]
