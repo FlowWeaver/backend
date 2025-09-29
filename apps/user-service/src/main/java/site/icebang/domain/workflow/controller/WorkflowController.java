@@ -42,10 +42,6 @@ public class WorkflowController {
   public ApiResponse<Void> createWorkflow(
       @Valid @RequestBody WorkflowCreateDto workflowCreateDto,
       @AuthenticationPrincipal AuthCredential authCredential) {
-    // 인증 체크
-    if (authCredential == null) {
-      throw new IllegalArgumentException("로그인이 필요합니다");
-    }
 
     // AuthCredential에서 userId 추출
     BigInteger userId = authCredential.getId();
