@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.common.dto.ApiResponse;
+import site.icebang.common.dto.ApiResponseDto;
 
 /**
  * 인증 진입점 처리기 (REST 전용 AuthenticationEntryPoint).
@@ -25,7 +25,7 @@ import site.icebang.common.dto.ApiResponse;
  *
  * <ul>
  *   <li>HTTP 상태 코드: {@link HttpStatus#UNAUTHORIZED} (401)
- *   <li>응답 본문: {@link ApiResponse} 형식의 에러 메시지
+ *   <li>응답 본문: {@link ApiResponseDto} 형식의 에러 메시지
  *   <li>응답 Content-Type: {@code application/json;charset=UTF-8}
  * </ul>
  *
@@ -50,8 +50,8 @@ public class RestAuthenticationEntryPoint implements AuthenticationEntryPoint {
   public void commence(
       HttpServletRequest request, HttpServletResponse response, AuthenticationException ex)
       throws IOException {
-    ApiResponse<String> body =
-        ApiResponse.error("Authentication required", HttpStatus.UNAUTHORIZED);
+    ApiResponseDto<String> body =
+        ApiResponseDto.error("Authentication required", HttpStatus.UNAUTHORIZED);
 
     response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
     response.setContentType("application/json;charset=UTF-8");

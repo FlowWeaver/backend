@@ -8,7 +8,7 @@ import lombok.Data;
 
 @Data
 @Builder
-public class WorkflowLogQueryCriteria {
+public class WorkflowLogQueryCriteriaDto {
   private final String traceId;
   private final BigInteger sourceId;
 

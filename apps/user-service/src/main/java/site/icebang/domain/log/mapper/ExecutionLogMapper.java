@@ -5,9 +5,9 @@ import java.util.List;
 import org.apache.ibatis.annotations.Mapper;
 
 import site.icebang.domain.workflow.dto.ExecutionLogDto;
-import site.icebang.domain.workflow.dto.log.WorkflowLogQueryCriteria;
+import site.icebang.domain.workflow.dto.log.WorkflowLogQueryCriteriaDto;
 
 @Mapper
 public interface ExecutionLogMapper {
-  List<ExecutionLogDto> selectLogsByCriteria(WorkflowLogQueryCriteria criteria);
+  List<ExecutionLogDto> selectLogsByCriteria(WorkflowLogQueryCriteriaDto criteria);
 }

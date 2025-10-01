@@ -8,14 +8,14 @@ import lombok.RequiredArgsConstructor;
 
 import site.icebang.domain.log.mapper.ExecutionLogMapper;
 import site.icebang.domain.workflow.dto.ExecutionLogDto;
-import site.icebang.domain.workflow.dto.log.WorkflowLogQueryCriteria;
+import site.icebang.domain.workflow.dto.log.WorkflowLogQueryCriteriaDto;
 
 @Service
 @RequiredArgsConstructor
 public class ExecutionLogService {
   private final ExecutionLogMapper executionLogMapper;
 
-  public List<ExecutionLogDto> getRawLogs(WorkflowLogQueryCriteria criteria) {
+  public List<ExecutionLogDto> getRawLogs(WorkflowLogQueryCriteriaDto criteria) {
     return executionLogMapper.selectLogsByCriteria(criteria);
   }
 }

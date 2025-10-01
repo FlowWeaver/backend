@@ -15,8 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.common.dto.PageParams;
-import site.icebang.common.dto.PageResult;
+import site.icebang.common.dto.PageParamsDto;
+import site.icebang.common.dto.PageResultDto;
 import site.icebang.common.exception.DuplicateDataException;
 import site.icebang.common.service.PageableService;
 import site.icebang.domain.schedule.mapper.ScheduleMapper;
@@ -62,18 +62,18 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
    * <p>이 메소드는 {@code PageableService} 인터페이스를 구현하며, {@code PageResult} 유틸리티를 사용하여 전체 카운트 쿼리와 목록 조회
    * 쿼리를 실행하고 페이징 결과를 생성합니다.
    *
-   * @param pageParams 페이징 처리에 필요한 파라미터 (페이지 번호, 페이지 크기 등)
+   * @param pageParamsDto 페이징 처리에 필요한 파라미터 (페이지 번호, 페이지 크기 등)
    * @return 페이징 처리된 워크플로우 카드 목록
-   * @see PageResult
+   * @see PageResultDto
    * @since v0.1.0
    */
   @Override
   @Transactional(readOnly = true)
-  public PageResult<WorkflowCardDto> getPagedResult(PageParams pageParams) {
-    return PageResult.from(
-        pageParams,
-        () -> workflowMapper.selectWorkflowList(pageParams),
-        () -> workflowMapper.selectWorkflowCount(pageParams));
+  public PageResultDto<WorkflowCardDto> getPagedResult(PageParamsDto pageParamsDto) {
+    return PageResultDto.from(
+            pageParamsDto,
+        () -> workflowMapper.selectWorkflowList(pageParamsDto),
+        () -> workflowMapper.selectWorkflowCount(pageParamsDto));
   }
 
   /**

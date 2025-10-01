@@ -12,7 +12,7 @@ import jakarta.mail.internet.MimeMessage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.domain.email.dto.EmailRequest;
+import site.icebang.domain.email.dto.EmailRequestDto;
 
 @Slf4j
 @Service
@@ -27,7 +27,7 @@ public class EmailServiceImpl implements EmailService {
   private String defaultSender;
 
   @Override
-  public void send(EmailRequest request) {
+  public void send(EmailRequestDto request) {
     try {
       if (request.isHtml()) {
         sendHtmlEmail(request);
@@ -40,7 +40,7 @@ public class EmailServiceImpl implements EmailService {
     }
   }
 
-  private void sendSimpleEmail(EmailRequest request) {
+  private void sendSimpleEmail(EmailRequestDto request) {
     try {
       SimpleMailMessage message = new SimpleMailMessage();
       message.setTo(request.getTo());
@@ -67,7 +67,7 @@ public class EmailServiceImpl implements EmailService {
     }
   }
 
-  private void sendHtmlEmail(EmailRequest request) throws MessagingException {
+  private void sendHtmlEmail(EmailRequestDto request) throws MessagingException {
     MimeMessage message = mailSender.createMimeMessage();
     MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 

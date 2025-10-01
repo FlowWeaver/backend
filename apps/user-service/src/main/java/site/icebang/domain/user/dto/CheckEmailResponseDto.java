@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class CheckEmailResponse {
+public class CheckEmailResponseDto {
   private Boolean available;
 }
