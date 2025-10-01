@@ -10,7 +10,7 @@ import site.icebang.common.exception.DuplicateDataException;
 import site.icebang.common.utils.RandomPasswordGenerator;
 import site.icebang.domain.auth.dto.RegisterDto;
 import site.icebang.domain.auth.mapper.AuthMapper;
-import site.icebang.domain.email.dto.EmailRequest;
+import site.icebang.domain.email.dto.EmailRequestDto;
 import site.icebang.domain.email.service.EmailService;
 
 @Service
@@ -42,13 +42,13 @@ public class AuthService {
       authMapper.insertUserRoles(registerDto);
     }
 
-    EmailRequest emailRequest =
-        EmailRequest.builder()
+    EmailRequestDto emailRequestDto =
+        EmailRequestDto.builder()
             .to(registerDto.getEmail())
             .subject("[ice-bang] 비밀번호")
             .body(randomPassword)
             .build();
 
-    emailService.send(emailRequest);
+    emailService.send(emailRequestDto);
   }
 }

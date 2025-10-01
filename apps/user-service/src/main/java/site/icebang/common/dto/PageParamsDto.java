@@ -25,7 +25,7 @@ import lombok.Data;
  * @see lombok.Data
  */
 @Data
-public class PageParams {
+public class PageParamsDto {
   /**
    * 현재 페이지 번호 (1부터 시작).
    *

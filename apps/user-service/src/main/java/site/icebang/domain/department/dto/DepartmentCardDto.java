@@ -9,7 +9,7 @@ import lombok.Data;
 @Data
 @Builder
 @AllArgsConstructor
-public class DepartmentCardDo {
+public class DepartmentCardDto {
   private BigInteger id;
   private String name;
 }

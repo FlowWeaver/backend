@@ -7,15 +7,15 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.common.dto.PageParams;
-import site.icebang.common.dto.PageResult;
+import site.icebang.common.dto.PageParamsDto;
+import site.icebang.common.dto.PageResultDto;
 import site.icebang.common.service.PageableService;
 import site.icebang.domain.workflow.dto.JobRunDto;
 import site.icebang.domain.workflow.dto.TaskRunDto;
 import site.icebang.domain.workflow.dto.WorkflowHistoryDTO;
-import site.icebang.domain.workflow.dto.WorkflowRunDetailResponse;
+import site.icebang.domain.workflow.dto.WorkflowRunDetailResponseDto;
 import site.icebang.domain.workflow.dto.WorkflowRunDto;
-import site.icebang.domain.workflow.dto.WorkflowRunLogsResponse;
+import site.icebang.domain.workflow.dto.WorkflowRunLogsResponseDto;
 import site.icebang.domain.workflow.mapper.WorkflowHistoryMapper;
 
 /**
@@ -44,19 +44,19 @@ public class WorkflowHistoryService implements PageableService<WorkflowHistoryDT
    * <p>이 메소드는 {@code PageableService} 인터페이스를 구현하며, {@code PageResult} 유틸리티를 사용하여 전체 카운트 쿼리와 목록 조회
    * 쿼리를 실행하고 페이징 결과를 생성합니다.
    *
-   * @param pageParams 페이징 처리에 필요한 파라미터 (페이지 번호, 페이지 크기 등)
+   * @param pageParamsDto 페이징 처리에 필요한 파라미터 (페이지 번호, 페이지 크기 등)
    * @return 페이징 처리된 워크플로우 실행 이력 목록
-   * @see PageResult
+   * @see PageResultDto
    * @since v0.1.0
    */
   @Override
   @Transactional(readOnly = true)
-  public PageResult<WorkflowHistoryDTO> getPagedResult(PageParams pageParams) {
+  public PageResultDto<WorkflowHistoryDTO> getPagedResult(PageParamsDto pageParamsDto) {
 
-    return PageResult.from(
-        pageParams,
-        () -> workflowHistoryMapper.selectWorkflowHistoryList(pageParams),
-        () -> workflowHistoryMapper.selectWorkflowHistoryCount(pageParams));
+    return PageResultDto.from(
+        pageParamsDto,
+        () -> workflowHistoryMapper.selectWorkflowHistoryList(pageParamsDto),
+        () -> workflowHistoryMapper.selectWorkflowHistoryCount(pageParamsDto));
   }
 
   /**
@@ -70,7 +70,7 @@ public class WorkflowHistoryService implements PageableService<WorkflowHistoryDT
    * @since v0.1.0
    */
   @Transactional(readOnly = true)
-  public WorkflowRunDetailResponse getWorkflowRunDetail(Long runId) {
+  public WorkflowRunDetailResponseDto getWorkflowRunDetail(Long runId) {
     // 1. 워크플로우 실행 정보 조회
     WorkflowRunDto workflowRunDto = workflowHistoryMapper.selectWorkflowRun(runId);
 
@@ -90,7 +90,7 @@ public class WorkflowHistoryService implements PageableService<WorkflowHistoryDT
     // 4. TraceId 조회
     String traceId = workflowHistoryMapper.selectTraceIdByRunId(runId);
 
-    return WorkflowRunDetailResponse.builder()
+    return WorkflowRunDetailResponseDto.builder()
         .workflowRun(workflowRunDto)
         .jobRuns(jobRunDtos)
         .traceId(traceId)
@@ -104,7 +104,7 @@ public class WorkflowHistoryService implements PageableService<WorkflowHistoryDT
    * @return 워크플로우 실행 로그 응답 객체
    * @since v0.1.0
    */
-  public WorkflowRunLogsResponse getWorkflowRunLogs(Long runId) {
+  public WorkflowRunLogsResponseDto getWorkflowRunLogs(Long runId) {
     // TODO: 구현 예정
     return null;
   }
@@ -116,7 +116,7 @@ public class WorkflowHistoryService implements PageableService<WorkflowHistoryDT
    * @return 워크플로우 실행 상세 응답 객체
    * @since v0.1.0
    */
-  public WorkflowRunDetailResponse getWorkflowRunByTraceId(String traceId) {
+  public WorkflowRunDetailResponseDto getWorkflowRunByTraceId(String traceId) {
     // TODO: 구현 예정
     return null;
   }

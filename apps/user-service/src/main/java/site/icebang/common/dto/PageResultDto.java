@@ -36,7 +36,7 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @NoArgsConstructor
-public class PageResult<T> {
+public class PageResultDto<T> {
 
   /** 현재 페이지에 포함된 데이터 목록. */
   private List<T> data;
@@ -67,7 +67,7 @@ public class PageResult<T> {
    * @param current 현재 페이지 번호
    * @param pageSize 페이지 크기
    */
-  public PageResult(List<T> data, int total, int current, int pageSize) {
+  public PageResultDto(List<T> data, int total, int current, int pageSize) {
     this.data = data;
     this.total = total;
     this.current = current;
@@ -96,8 +96,8 @@ public class PageResult<T> {
    * @param <T> 데이터 타입
    * @return PageResult 객체
    */
-  public static <T> PageResult<T> of(List<T> data, int total, int current, int pageSize) {
-    return new PageResult<>(data, total, current, pageSize);
+  public static <T> PageResultDto<T> of(List<T> data, int total, int current, int pageSize) {
+    return new PageResultDto<>(data, total, current, pageSize);
   }
 
   /**
@@ -105,12 +105,13 @@ public class PageResult<T> {
    *
    * @param data 현재 페이지 데이터
    * @param total 전체 데이터 개수
-   * @param pageParams 요청 파라미터 ({@link PageParams})
+   * @param pageParamsDto 요청 파라미터 ({@link PageParamsDto})
    * @param <T> 데이터 타입
    * @return PageResult 객체
    */
-  public static <T> PageResult<T> of(List<T> data, int total, PageParams pageParams) {
-    return new PageResult<>(data, total, pageParams.getCurrent(), pageParams.getPageSize());
+  public static <T> PageResultDto<T> of(List<T> data, int total, PageParamsDto pageParamsDto) {
+    return new PageResultDto<>(
+        data, total, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
   }
 
   /**
@@ -118,28 +119,32 @@ public class PageResult<T> {
    *
    * <p>데이터 조회와 카운트 조회를 별도의 Supplier로 받아 트랜잭션 내에서 실행할 수 있습니다.
    *
-   * @param pageParams 요청 파라미터 ({@link PageParams})
+   * @param pageParamsDto 요청 파라미터 ({@link PageParamsDto})
    * @param dataSupplier 데이터 조회 함수
    * @param countSupplier 전체 개수 조회 함수
    * @param <T> 데이터 타입
    * @return PageResult 객체
    */
-  public static <T> PageResult<T> from(
-      PageParams pageParams, Supplier<List<T>> dataSupplier, Supplier<Integer> countSupplier) {
+  public static <T> PageResultDto<T> from(
+      PageParamsDto pageParamsDto,
+      Supplier<List<T>> dataSupplier,
+      Supplier<Integer> countSupplier) {
     List<T> data = dataSupplier.get();
     int total = countSupplier.get();
-    return new PageResult<>(data, total, pageParams.getCurrent(), pageParams.getPageSize());
+    return new PageResultDto<>(
+        data, total, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
   }
 
   /**
    * 비어 있는 페이지 결과를 생성합니다.
    *
-   * @param pageParams 요청 파라미터 ({@link PageParams})
+   * @param pageParamsDto 요청 파라미터 ({@link PageParamsDto})
    * @param <T> 데이터 타입
    * @return 빈 PageResult 객체
    */
-  public static <T> PageResult<T> empty(PageParams pageParams) {
-    return new PageResult<>(List.of(), 0, pageParams.getCurrent(), pageParams.getPageSize());
+  public static <T> PageResultDto<T> empty(PageParamsDto pageParamsDto) {
+    return new PageResultDto<>(
+        List.of(), 0, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
   }
 
   /**
@@ -148,8 +153,8 @@ public class PageResult<T> {
    * @param <T> 데이터 타입
    * @return 빈 PageResult 객체
    */
-  public static <T> PageResult<T> empty() {
-    return new PageResult<>(List.of(), 0, 1, 10);
+  public static <T> PageResultDto<T> empty() {
+    return new PageResultDto<>(List.of(), 0, 1, 10);
   }
 
   /**

@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="site.icebang.domain.workflow.mapper.WorkflowMapper">
-    <select id="selectWorkflowList" parameterType="site.icebang.common.dto.PageParams"
+    <select id="selectWorkflowList" parameterType="site.icebang.common.dto.PageParamsDto"
             resultType="site.icebang.domain.workflow.dto.WorkflowCardDto">
         SELECT
             w.id,
@@ -19,7 +19,7 @@
         LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
-    <select id="selectWorkflowCount" parameterType="site.icebang.common.dto.PageParams"
+    <select id="selectWorkflowCount" parameterType="site.icebang.common.dto.PageParamsDto"
             resultType="int">
         SELECT COUNT(*)
         FROM workflow w

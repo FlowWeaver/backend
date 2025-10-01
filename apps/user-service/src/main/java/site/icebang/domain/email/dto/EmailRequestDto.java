@@ -7,7 +7,7 @@ import lombok.Getter;
 
 @Builder
 @Getter
-public class EmailRequest {
+public class EmailRequestDto {
   private String to;
   private String subject;
   private String body;

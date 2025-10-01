@@ -30,7 +30,7 @@ import lombok.Data;
  * @see lombok.Data
  */
 @Data
-public class ApiResponse<T> {
+public class ApiResponseDto<T> {
   /**
    * 요청 처리 성공 여부.
    *
@@ -60,7 +60,7 @@ public class ApiResponse<T> {
   private HttpStatus status; // HttpStatus로 변경
 
   /** 기본 생성자입니다. 모든 필드가 기본값으로 초기화됩니다. */
-  public ApiResponse() {}
+  public ApiResponseDto() {}
 
   /**
    * 모든 필드를 초기화하는 생성자.
@@ -70,7 +70,7 @@ public class ApiResponse<T> {
    * @param message 응답 메시지
    * @param status HTTP 상태 코드
    */
-  public ApiResponse(boolean success, T data, String message, HttpStatus status) {
+  public ApiResponseDto(boolean success, T data, String message, HttpStatus status) {
     this.success = success;
     this.data = data;
     this.message = message;
@@ -84,8 +84,8 @@ public class ApiResponse<T> {
    * @param <T> 데이터 타입
    * @return 성공 응답 객체
    */
-  public static <T> ApiResponse<T> success(T data) {
-    return new ApiResponse<>(true, data, "OK", HttpStatus.OK);
+  public static <T> ApiResponseDto<T> success(T data) {
+    return new ApiResponseDto<>(true, data, "OK", HttpStatus.OK);
   }
 
   /**
@@ -96,8 +96,8 @@ public class ApiResponse<T> {
    * @param <T> 데이터 타입
    * @return 성공 응답 객체
    */
-  public static <T> ApiResponse<T> success(T data, String message) {
-    return new ApiResponse<>(true, data, message, HttpStatus.OK);
+  public static <T> ApiResponseDto<T> success(T data, String message) {
+    return new ApiResponseDto<>(true, data, message, HttpStatus.OK);
   }
 
   /**
@@ -109,8 +109,8 @@ public class ApiResponse<T> {
    * @param <T> 데이터 타입
    * @return 성공 응답 객체
    */
-  public static <T> ApiResponse<T> success(T data, String message, HttpStatus status) {
-    return new ApiResponse<>(true, data, message, status);
+  public static <T> ApiResponseDto<T> success(T data, String message, HttpStatus status) {
+    return new ApiResponseDto<>(true, data, message, status);
   }
 
   /**
@@ -121,7 +121,7 @@ public class ApiResponse<T> {
    * @param <T> 데이터 타입
    * @return 오류 응답 객체
    */
-  public static <T> ApiResponse<T> error(String message, HttpStatus status) {
-    return new ApiResponse<>(false, null, message, status);
+  public static <T> ApiResponseDto<T> error(String message, HttpStatus status) {
+    return new ApiResponseDto<>(false, null, message, status);
   }
 }

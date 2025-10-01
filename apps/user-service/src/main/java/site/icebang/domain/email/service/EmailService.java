@@ -1,7 +1,7 @@
 package site.icebang.domain.email.service;
 
-import site.icebang.domain.email.dto.EmailRequest;
+import site.icebang.domain.email.dto.EmailRequestDto;
 
 public interface EmailService {
-  void send(EmailRequest emailRequest);
+  void send(EmailRequestDto emailRequestDto);
 }

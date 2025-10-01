@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.common.dto.ApiResponse;
+import site.icebang.common.dto.ApiResponseDto;
 import site.icebang.domain.workflow.dto.TaskDto;
 import site.icebang.domain.workflow.model.TaskIoData;
 import site.icebang.domain.workflow.service.WorkflowService;
@@ -46,7 +46,7 @@ public class TaskController {
    * @return Task IO 데이터 목록 (created_at 기준 내림차순 정렬)
    */
   @GetMapping("/io-data")
-  public ResponseEntity<ApiResponse<List<TaskIoData>>> getTaskIoData(
+  public ResponseEntity<ApiResponseDto<List<TaskIoData>>> getTaskIoData(
       @RequestParam List<Long> taskRunIds,
       @RequestParam(required = false) String ioType,
       @RequestParam(required = false) Integer limit) {
@@ -54,11 +54,11 @@ public class TaskController {
     try {
       List<TaskIoData> ioData =
           workflowService.getTaskIoDataByTaskRunIds(taskRunIds, ioType, limit);
-      return ResponseEntity.ok(ApiResponse.success(ioData, "Task IO 데이터 조회 성공"));
+      return ResponseEntity.ok(ApiResponseDto.success(ioData, "Task IO 데이터 조회 성공"));
     } catch (Exception e) {
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
           .body(
-              ApiResponse.error(
+              ApiResponseDto.error(
                   "Task IO 데이터 조회 실패: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR));
     }
   }

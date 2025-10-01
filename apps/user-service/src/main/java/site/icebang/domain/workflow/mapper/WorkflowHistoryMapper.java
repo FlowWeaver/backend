@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.apache.ibatis.annotations.Mapper;
 
-import site.icebang.common.dto.PageParams;
+import site.icebang.common.dto.PageParamsDto;
 import site.icebang.domain.workflow.dto.JobRunDto;
 import site.icebang.domain.workflow.dto.TaskRunDto;
 import site.icebang.domain.workflow.dto.WorkflowHistoryDTO;
@@ -55,16 +55,16 @@ public interface WorkflowHistoryMapper {
   /**
    * 페이지네이션을 적용한 워크플로우 히스토리 목록을 조회합니다.
    *
-   * @param pageParams 페이지 매개변수
+   * @param pageParamsDto 페이지 매개변수
    * @return 워크플로우 히스토리 정보 목록
    */
-  List<WorkflowHistoryDTO> selectWorkflowHistoryList(PageParams pageParams);
+  List<WorkflowHistoryDTO> selectWorkflowHistoryList(PageParamsDto pageParamsDto);
 
   /**
    * 워크플로우 런 인스턴스의 총 개수를 조회합니다.
    *
-   * @param pageParams 페이지 매개변수
+   * @param pageParamsDto 페이지 매개변수
    * @return 총 결과 개수
    */
-  int selectWorkflowHistoryCount(PageParams pageParams);
+  int selectWorkflowHistoryCount(PageParamsDto pageParamsDto);
 }

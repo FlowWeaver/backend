@@ -11,7 +11,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class WorkflowRunLogsResponse {
+public class WorkflowRunDetailResponseDto {
   private String traceId;
-  private List<ExecutionLogDto> logs;
+  private WorkflowRunDto workflowRun;
+  private List<JobRunDto> jobRuns;
 }
