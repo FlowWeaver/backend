@@ -41,9 +41,9 @@
 * **Spring Boot (Orchestrator)**: `Workflow → Job → Task`의 계층적 구조를 기반으로 전체 비즈니스 흐름을 제어합니다. 스케줄링(`Quartz`), 상태 관리, 데이터 영속성, 사용자 인증/인가 등 핵심 로직을 담당합니다.
 * **FastAPI (Worker)**: 키워드 추출, 상품 검색, 웹 크롤링, AI 연동(RAG), OCR 등 Python 생태계에 특화된 무거운 실제 작업을 API 형태로 제공합니다.
 
-![System Architecture](assets/시스템 아키텍처1.png)
+![System Architecture](assets/시스템_아키텍처_1.png)
 
-![System Architecture](assets/시스템 아키텍처2.png)
+![System Architecture](assets/시스템_아키텍처_2.png)
 
 -----
 
@@ -51,7 +51,7 @@
 
 시스템의 주요 액터는 \*\*관리자(Admin)\*\*와 \*\*스케줄러(Scheduler)\*\*입니다. 관리자는 워크플로우와 스케줄을 관리하고, 수동으로 워크플로우를 실행할 수 있습니다. 스케줄러는 정해진 시간에 워크플로우를 자동으로 실행합니다.
 
-![Usecase Diagram](assets/유스케이스 다이어그램.png)
+![Usecase Diagram](assets/유스케이스_다이어그램.png)
 
 -----
 
@@ -76,13 +76,13 @@
 
 GitHub Actions를 사용하여 `main` 또는 `pre-processing` 브랜치에 Push 또는 PR이 발생했을 때 CI/CD 파이프라인이 자동으로 실행됩니다. 빌드, 테스트, Docker 이미지 빌드 및 푸시, EC2 배포까지의 과정이 자동화되어 있습니다.
 
-![Sequence Diagram](assets/CICD 시퀀스 다이어그램1.png)
+![Sequence Diagram](assets/CICD_시퀀스_다이어그램_1.png)
 
-![Sequence Diagram](assets/CICD 시퀀스 다이어그램2.png)
+![Sequence Diagram](assets/CICD_시퀀스_다이어그램_2.png)
 
-![Sequence Diagram](assets/CICD 시퀀스 다이어그램3.png)
+![Sequence Diagram](assets/CICD_시퀀스_다이어그램_3.png)
 
-![Sequence Diagram](assets/CICD 시퀀스 다이어그램4.png)
+![Sequence Diagram](assets/CICD_시퀀스_다이어그램_4.png)
 
 -----
 
