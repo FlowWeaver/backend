@@ -20,8 +20,8 @@ import site.icebang.common.exception.DuplicateDataException;
 /**
  * 전역 예외 처리기 (Global Exception Handler).
  *
- * <p>이 클래스는 애플리케이션 전역에서 발생하는 예외를 {@link ApiResponseDto} 형태로 변환하여 클라이언트에게 반환합니다. 예외 유형에 따라 적절한 {@link
- * HttpStatus} 코드를 설정하며, 공통적인 예외 처리 로직을 중앙화합니다.
+ * <p>이 클래스는 애플리케이션 전역에서 발생하는 예외를 {@link ApiResponseDto} 형태로 변환하여 클라이언트에게 반환합니다. 예외 유형에 따라 적절한
+ * {@link HttpStatus} 코드를 설정하며, 공통적인 예외 처리 로직을 중앙화합니다.
  *
  * <p>처리되는 주요 예외는 다음과 같습니다:
  *
@@ -91,7 +91,8 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(AuthenticationException.class)
   @ResponseStatus(HttpStatus.UNAUTHORIZED)
   public ApiResponseDto<String> handleAuthentication(AuthenticationException ex) {
-    return ApiResponseDto.error("Authentication failed: " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    return ApiResponseDto.error(
+        "Authentication failed: " + ex.getMessage(), HttpStatus.UNAUTHORIZED);
   }
 
   /**

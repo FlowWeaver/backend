@@ -25,7 +25,8 @@ public class UserController {
     Boolean available = !userService.isExistEmail(request);
     String message = available.equals(Boolean.TRUE) ? "사용 가능한 이메일입니다." : "이미 가입된 이메일입니다.";
 
-    return ApiResponseDto.success(CheckEmailResponseDto.builder().available(available).build(), message);
+    return ApiResponseDto.success(
+        CheckEmailResponseDto.builder().available(available).build(), message);
   }
 
   @GetMapping("/me")

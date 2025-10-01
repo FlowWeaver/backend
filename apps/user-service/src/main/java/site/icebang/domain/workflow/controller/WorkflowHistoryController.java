@@ -27,7 +27,8 @@ public class WorkflowHistoryController {
   @GetMapping("")
   public ApiResponseDto<PageResultDto<WorkflowHistoryDTO>> getWorkflowHistoryList(
       @ModelAttribute PageParamsDto pageParamsDto) {
-    PageResultDto<WorkflowHistoryDTO> response = workflowHistoryService.getPagedResult(pageParamsDto);
+    PageResultDto<WorkflowHistoryDTO> response =
+        workflowHistoryService.getPagedResult(pageParamsDto);
     return ApiResponseDto.success(response);
   }
 
@@ -38,7 +39,8 @@ public class WorkflowHistoryController {
    * @return WorkflowRunDetailResponse
    */
   @GetMapping("/{runId}")
-  public ApiResponseDto<WorkflowRunDetailResponseDto> getWorkflowRunDetail(@PathVariable Long runId) {
+  public ApiResponseDto<WorkflowRunDetailResponseDto> getWorkflowRunDetail(
+      @PathVariable Long runId) {
     WorkflowRunDetailResponseDto response = workflowHistoryService.getWorkflowRunDetail(runId);
     return ApiResponseDto.success(response);
   }

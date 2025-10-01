@@ -71,7 +71,7 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
   @Transactional(readOnly = true)
   public PageResultDto<WorkflowCardDto> getPagedResult(PageParamsDto pageParamsDto) {
     return PageResultDto.from(
-            pageParamsDto,
+        pageParamsDto,
         () -> workflowMapper.selectWorkflowList(pageParamsDto),
         () -> workflowMapper.selectWorkflowCount(pageParamsDto));
   }

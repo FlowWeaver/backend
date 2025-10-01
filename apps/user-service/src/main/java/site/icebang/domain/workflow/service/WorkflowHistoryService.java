@@ -54,7 +54,7 @@ public class WorkflowHistoryService implements PageableService<WorkflowHistoryDT
   public PageResultDto<WorkflowHistoryDTO> getPagedResult(PageParamsDto pageParamsDto) {
 
     return PageResultDto.from(
-            pageParamsDto,
+        pageParamsDto,
         () -> workflowHistoryMapper.selectWorkflowHistoryList(pageParamsDto),
         () -> workflowHistoryMapper.selectWorkflowHistoryCount(pageParamsDto));
   }

@@ -30,6 +30,7 @@ public class OrganizationController {
   @GetMapping("/{id}/options")
   public ResponseEntity<ApiResponseDto<OrganizationOptionDto>> getOrganizationDetails(
       @PathVariable BigInteger id) {
-    return ResponseEntity.ok(ApiResponseDto.success(organizationService.getOrganizationOptions(id)));
+    return ResponseEntity.ok(
+        ApiResponseDto.success(organizationService.getOrganizationOptions(id)));
   }
 }

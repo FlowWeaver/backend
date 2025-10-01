@@ -64,7 +64,8 @@ public class WorkflowController {
   }
 
   @GetMapping("/{workflowId}/detail")
-  public ApiResponseDto<WorkflowDetailCardDto> getWorkflowDetail(@PathVariable BigInteger workflowId) {
+  public ApiResponseDto<WorkflowDetailCardDto> getWorkflowDetail(
+      @PathVariable BigInteger workflowId) {
     WorkflowDetailCardDto result = workflowService.getWorkflowDetail(workflowId);
     return ApiResponseDto.success(result);
   }

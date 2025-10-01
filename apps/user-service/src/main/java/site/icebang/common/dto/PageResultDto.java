@@ -110,7 +110,8 @@ public class PageResultDto<T> {
    * @return PageResult 객체
    */
   public static <T> PageResultDto<T> of(List<T> data, int total, PageParamsDto pageParamsDto) {
-    return new PageResultDto<>(data, total, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
+    return new PageResultDto<>(
+        data, total, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
   }
 
   /**
@@ -125,10 +126,13 @@ public class PageResultDto<T> {
    * @return PageResult 객체
    */
   public static <T> PageResultDto<T> from(
-          PageParamsDto pageParamsDto, Supplier<List<T>> dataSupplier, Supplier<Integer> countSupplier) {
+      PageParamsDto pageParamsDto,
+      Supplier<List<T>> dataSupplier,
+      Supplier<Integer> countSupplier) {
     List<T> data = dataSupplier.get();
     int total = countSupplier.get();
-    return new PageResultDto<>(data, total, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
+    return new PageResultDto<>(
+        data, total, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
   }
 
   /**
@@ -139,7 +143,8 @@ public class PageResultDto<T> {
    * @return 빈 PageResult 객체
    */
   public static <T> PageResultDto<T> empty(PageParamsDto pageParamsDto) {
-    return new PageResultDto<>(List.of(), 0, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
+    return new PageResultDto<>(
+        List.of(), 0, pageParamsDto.getCurrent(), pageParamsDto.getPageSize());
   }
 
   /**

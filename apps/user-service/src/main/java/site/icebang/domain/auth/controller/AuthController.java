@@ -58,7 +58,8 @@ public class AuthController {
   }
 
   @GetMapping("/permissions")
-  public ApiResponseDto<AuthCredential> getPermissions(@AuthenticationPrincipal AuthCredential user) {
+  public ApiResponseDto<AuthCredential> getPermissions(
+      @AuthenticationPrincipal AuthCredential user) {
     return ApiResponseDto.success(user);
   }
 
