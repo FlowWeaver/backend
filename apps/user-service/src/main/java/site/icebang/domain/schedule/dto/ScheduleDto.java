@@ -1,4 +1,4 @@
-package site.icebang.domain.workflow.dto;
+package site.icebang.domain.schedule.dto;
 
 import java.time.Instant;
 

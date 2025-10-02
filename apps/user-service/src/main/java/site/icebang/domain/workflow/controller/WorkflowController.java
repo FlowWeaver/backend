@@ -42,10 +42,6 @@ public class WorkflowController {
   public ApiResponseDto<Void> createWorkflow(
       @Valid @RequestBody WorkflowCreateDto workflowCreateDto,
       @AuthenticationPrincipal AuthCredential authCredential) {
-    // 인증 체크
-    if (authCredential == null) {
-      throw new IllegalArgumentException("로그인이 필요합니다");
-    }
 
     // AuthCredential에서 userId 추출
     BigInteger userId = authCredential.getId();
@@ -68,5 +64,65 @@ public class WorkflowController {
       @PathVariable BigInteger workflowId) {
     WorkflowDetailCardDto result = workflowService.getWorkflowDetail(workflowId);
     return ApiResponseDto.success(result);
+  }
+
+  /**
+   * 워크플로우를 삭제합니다 (논리 삭제).
+   *
+   * <p>워크플로우를 비활성화하고 모든 스케줄을 중단합니다.
+   *
+   * @param workflowId 삭제할 워크플로우 ID
+   * @return 성공 응답
+   */
+  @DeleteMapping("/{workflowId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public ApiResponseDto<Void> deleteWorkflow(@PathVariable BigInteger workflowId) {
+    workflowService.deleteWorkflow(workflowId);
+    return ApiResponseDto.success(null);
+  }
+
+  /**
+   * 워크플로우를 비활성화합니다.
+   *
+   * <p>워크플로우를 중단하고 모든 스케줄을 Quartz에서 제거합니다.
+   *
+   * @param workflowId 비활성화할 워크플로우 ID
+   * @return 성공 응답
+   */
+  @PatchMapping("/{workflowId}/deactivate")
+  public ApiResponseDto<Void> deactivateWorkflow(@PathVariable BigInteger workflowId) {
+    workflowService.deactivateWorkflow(workflowId);
+    return ApiResponseDto.success(null);
+  }
+
+  /**
+   * 워크플로우를 활성화합니다.
+   *
+   * <p>워크플로우를 재개하고 모든 활성 스케줄을 Quartz에 재등록합니다.
+   *
+   * @param workflowId 활성화할 워크플로우 ID
+   * @return 성공 응답
+   */
+  @PatchMapping("/{workflowId}/activate")
+  public ApiResponseDto<Void> activateWorkflow(@PathVariable BigInteger workflowId) {
+    workflowService.activateWorkflow(workflowId);
+    return ApiResponseDto.success(null);
+  }
+
+  /**
+   * 워크플로우의 특정 스케줄을 삭제합니다.
+   *
+   * <p>스케줄을 비활성화하고 Quartz에서 제거합니다.
+   *
+   * @param workflowId 워크플로우 ID
+   * @param scheduleId 삭제할 스케줄 ID
+   * @return 성공 응답
+   */
+  @DeleteMapping("/{workflowId}/schedules/{scheduleId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public ApiResponseDto<Void> deleteWorkflowSchedule(
+      @PathVariable BigInteger workflowId, @PathVariable Long scheduleId) {
+    workflowService.deleteWorkflowSchedule(workflowId, scheduleId);
+    return ApiResponseDto.success(null);
   }
 }

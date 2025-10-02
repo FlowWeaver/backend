@@ -334,4 +334,7 @@ CREATE INDEX idx_error_code ON execution_log(error_code);
 CREATE INDEX idx_duration ON execution_log(duration_ms);
 CREATE INDEX idx_execution_type_source ON execution_log(execution_type, source_id);
 
-
+-- v0.5
+-- schedule 테이블 workflow_id unique 조건 제거
+ALTER TABLE schedule DROP INDEX uk_schedule_workflow;
+ALTER TABLE schedule ADD UNIQUE KEY uk_schedule_workflow_cron (workflow_id, cron_expression);

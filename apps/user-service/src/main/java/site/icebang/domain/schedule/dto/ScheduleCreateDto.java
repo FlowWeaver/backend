@@ -1,4 +1,4 @@
-package site.icebang.domain.workflow.dto;
+package site.icebang.domain.schedule.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -85,17 +85,18 @@ public class ScheduleCreateDto {
    *
    * <p>DTO의 정보를 DB 저장용 엔티티로 변환하며, 서비스 레이어에서 주입되는 workflowId와 userId를 함께 설정합니다.
    *
+   * @param dto 변환할 ScheduleCreateDto 객체
    * @param workflowId 연결할 워크플로우 ID
    * @param userId 생성자 ID
    * @return DB 저장 가능한 Schedule 엔티티
    */
-  public Schedule toEntity(Long workflowId, Long userId) {
+  public static Schedule toEntity(ScheduleCreateDto dto, Long workflowId, Long userId) {
     return Schedule.builder()
         .workflowId(workflowId)
-        .cronExpression(this.cronExpression)
-        .scheduleText(this.scheduleText)
-        .isActive(this.isActive != null ? this.isActive : true)
-        .parameters(this.parameters)
+        .cronExpression(dto.cronExpression)
+        .scheduleText(dto.scheduleText)
+        .isActive(dto.isActive != null ? dto.isActive : true)
+        .parameters(dto.parameters)
         .createdBy(userId)
         .updatedBy(userId)
         .build();
