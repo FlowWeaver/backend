@@ -241,3 +241,9 @@ pre-processing-service/
 
 * **FastAPI (`pre-processing-service`)**:
 * **Spring Boot (`user-service`)**: 
+
+-----
+
+## 10\. 시연 영상
+https://www.youtube.com/watch?v=1vApNttVxVg
+[![Video Label](http://img.youtube.com/vi/1vApNttVxVg/0.jpg)](https://www.youtube.com/watch?v=1vApNttVxVg)
