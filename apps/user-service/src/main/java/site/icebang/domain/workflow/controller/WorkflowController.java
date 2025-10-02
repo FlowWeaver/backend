@@ -10,11 +10,11 @@ import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.common.dto.ApiResponse;
-import site.icebang.common.dto.PageParams;
-import site.icebang.common.dto.PageResult;
+import site.icebang.common.dto.ApiResponseDto;
+import site.icebang.common.dto.PageParamsDto;
+import site.icebang.common.dto.PageResultDto;
 import site.icebang.domain.auth.model.AuthCredential;
-import site.icebang.domain.workflow.dto.RequestContext;
+import site.icebang.domain.workflow.dto.RequestContextDto;
 import site.icebang.domain.workflow.dto.WorkflowCardDto;
 import site.icebang.domain.workflow.dto.WorkflowCreateDto;
 import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
@@ -31,15 +31,15 @@ public class WorkflowController {
   private final RequestContextService requestContextService;
 
   @GetMapping("")
-  public ApiResponse<PageResult<WorkflowCardDto>> getWorkflowList(
-      @ModelAttribute PageParams pageParams) {
-    PageResult<WorkflowCardDto> result = workflowService.getPagedResult(pageParams);
-    return ApiResponse.success(result);
+  public ApiResponseDto<PageResultDto<WorkflowCardDto>> getWorkflowList(
+      @ModelAttribute PageParamsDto pageParamsDto) {
+    PageResultDto<WorkflowCardDto> result = workflowService.getPagedResult(pageParamsDto);
+    return ApiResponseDto.success(result);
   }
 
   @PostMapping("")
   @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<Void> createWorkflow(
+  public ApiResponseDto<Void> createWorkflow(
       @Valid @RequestBody WorkflowCreateDto workflowCreateDto,
       @AuthenticationPrincipal AuthCredential authCredential) {
 
@@ -47,22 +47,23 @@ public class WorkflowController {
     BigInteger userId = authCredential.getId();
 
     workflowService.createWorkflow(workflowCreateDto, userId);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   @PostMapping("/{workflowId}/run")
   public ResponseEntity<Void> runWorkflow(@PathVariable Long workflowId) {
 
-    RequestContext context = requestContextService.extractRequestContext();
+    RequestContextDto context = requestContextService.extractRequestContext();
     // HTTP 요청/응답 스레드를 블로킹하지 않도록 비동기 실행
     workflowExecutionService.executeWorkflow(workflowId, context);
     return ResponseEntity.accepted().build();
   }
 
   @GetMapping("/{workflowId}/detail")
-  public ApiResponse<WorkflowDetailCardDto> getWorkflowDetail(@PathVariable BigInteger workflowId) {
+  public ApiResponseDto<WorkflowDetailCardDto> getWorkflowDetail(
+      @PathVariable BigInteger workflowId) {
     WorkflowDetailCardDto result = workflowService.getWorkflowDetail(workflowId);
-    return ApiResponse.success(result);
+    return ApiResponseDto.success(result);
   }
 
   /**
@@ -75,9 +76,9 @@ public class WorkflowController {
    */
   @DeleteMapping("/{workflowId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public ApiResponse<Void> deleteWorkflow(@PathVariable BigInteger workflowId) {
+  public ApiResponseDto<Void> deleteWorkflow(@PathVariable BigInteger workflowId) {
     workflowService.deleteWorkflow(workflowId);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   /**
@@ -89,9 +90,9 @@ public class WorkflowController {
    * @return 성공 응답
    */
   @PatchMapping("/{workflowId}/deactivate")
-  public ApiResponse<Void> deactivateWorkflow(@PathVariable BigInteger workflowId) {
+  public ApiResponseDto<Void> deactivateWorkflow(@PathVariable BigInteger workflowId) {
     workflowService.deactivateWorkflow(workflowId);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   /**
@@ -103,9 +104,9 @@ public class WorkflowController {
    * @return 성공 응답
    */
   @PatchMapping("/{workflowId}/activate")
-  public ApiResponse<Void> activateWorkflow(@PathVariable BigInteger workflowId) {
+  public ApiResponseDto<Void> activateWorkflow(@PathVariable BigInteger workflowId) {
     workflowService.activateWorkflow(workflowId);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   /**
@@ -119,9 +120,9 @@ public class WorkflowController {
    */
   @DeleteMapping("/{workflowId}/schedules/{scheduleId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public ApiResponse<Void> deleteWorkflowSchedule(
+  public ApiResponseDto<Void> deleteWorkflowSchedule(
       @PathVariable BigInteger workflowId, @PathVariable Long scheduleId) {
     workflowService.deleteWorkflowSchedule(workflowId, scheduleId);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 }

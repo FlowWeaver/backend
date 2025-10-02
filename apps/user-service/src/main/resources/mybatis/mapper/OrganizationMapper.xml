@@ -14,7 +14,7 @@
     </select>
 
     <select id="findDepartmentsByOrganizationId"
-            resultType="site.icebang.domain.department.dto.DepartmentCardDo">
+            resultType="site.icebang.domain.department.dto.DepartmentCardDto">
         SELECT
             id,
             name

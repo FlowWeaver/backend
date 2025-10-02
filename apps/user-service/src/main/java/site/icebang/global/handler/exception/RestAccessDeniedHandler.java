@@ -13,7 +13,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.common.dto.ApiResponse;
+import site.icebang.common.dto.ApiResponseDto;
 
 /**
  * 접근 거부 처리기 (REST 전용 AccessDeniedHandler).
@@ -25,7 +25,7 @@ import site.icebang.common.dto.ApiResponse;
  *
  * <ul>
  *   <li>HTTP 상태 코드: {@link HttpStatus#FORBIDDEN} (403)
- *   <li>응답 본문: {@link ApiResponse} 형식의 에러 메시지
+ *   <li>응답 본문: {@link ApiResponseDto} 형식의 에러 메시지
  *   <li>응답 Content-Type: {@code application/json;charset=UTF-8}
  * </ul>
  *
@@ -50,7 +50,7 @@ public class RestAccessDeniedHandler implements AccessDeniedHandler {
   public void handle(
       HttpServletRequest request, HttpServletResponse response, AccessDeniedException ex)
       throws IOException {
-    ApiResponse<String> body = ApiResponse.error("Access denied", HttpStatus.FORBIDDEN);
+    ApiResponseDto<String> body = ApiResponseDto.error("Access denied", HttpStatus.FORBIDDEN);
 
     response.setStatus(HttpServletResponse.SC_FORBIDDEN);
     response.setContentType("application/json;charset=UTF-8");

@@ -68,7 +68,7 @@
         WHERE id = #{runId}
     </select>
 
-    <select id="selectWorkflowHistoryList" parameterType="site.icebang.common.dto.PageParams"
+    <select id="selectWorkflowHistoryList" parameterType="site.icebang.common.dto.PageParamsDto"
             resultType="site.icebang.domain.workflow.dto.WorkflowHistoryDTO">
         SELECT
             wr.id,
@@ -87,7 +87,7 @@
             LIMIT #{pageSize} OFFSET #{offset}
     </select>
 
-    <select id="selectWorkflowHistoryCount" parameterType="site.icebang.common.dto.PageParams"
+    <select id="selectWorkflowHistoryCount" parameterType="site.icebang.common.dto.PageParamsDto"
             resultType="int">
         SELECT COUNT(*)
         FROM workflow_run

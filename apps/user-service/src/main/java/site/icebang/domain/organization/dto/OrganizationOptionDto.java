@@ -6,7 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
-import site.icebang.domain.department.dto.DepartmentCardDo;
+import site.icebang.domain.department.dto.DepartmentCardDto;
 import site.icebang.domain.position.dto.PositionCardDto;
 import site.icebang.domain.roles.dto.RoleCardDto;
 
@@ -14,7 +14,7 @@ import site.icebang.domain.roles.dto.RoleCardDto;
 @Data
 @AllArgsConstructor
 public class OrganizationOptionDto {
-  List<DepartmentCardDo> departments;
+  List<DepartmentCardDto> departments;
   List<PositionCardDto> positions;
   List<RoleCardDto> roles;
 }

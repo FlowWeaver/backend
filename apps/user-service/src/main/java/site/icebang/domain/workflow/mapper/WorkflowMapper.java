@@ -5,15 +5,15 @@ import java.util.*;
 
 import org.apache.ibatis.annotations.Param;
 
-import site.icebang.common.dto.PageParams;
+import site.icebang.common.dto.PageParamsDto;
 import site.icebang.domain.schedule.dto.ScheduleDto;
 import site.icebang.domain.workflow.dto.WorkflowCardDto;
 import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
 
 public interface WorkflowMapper {
-  List<WorkflowCardDto> selectWorkflowList(PageParams pageParams);
+  List<WorkflowCardDto> selectWorkflowList(PageParamsDto pageParamsDto);
 
-  int selectWorkflowCount(PageParams pageParams);
+  int selectWorkflowCount(PageParamsDto pageParamsDto);
 
   int insertWorkflow(Map<String, Object> params); // insert workflow
 
