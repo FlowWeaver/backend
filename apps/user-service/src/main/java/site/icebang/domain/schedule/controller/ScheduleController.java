@@ -10,7 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.common.dto.ApiResponse;
+import site.icebang.common.dto.ApiResponseDto;
 import site.icebang.domain.auth.model.AuthCredential;
 import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 import site.icebang.domain.schedule.dto.ScheduleUpdateDto;
@@ -45,7 +45,7 @@ public class ScheduleController {
 
   @PostMapping("/workflows/{workflowId}/schedules")
   @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<Schedule> createSchedule(
+  public ApiResponseDto<Schedule> createSchedule(
       @PathVariable Long workflowId,
       @Valid @RequestBody ScheduleCreateDto dto,
       @AuthenticationPrincipal AuthCredential authCredential) {
@@ -53,7 +53,7 @@ public class ScheduleController {
     Long userId = authCredential.getId().longValue();
     Schedule schedule = scheduleService.createSchedule(workflowId, dto, userId);
 
-    return ApiResponse.success(schedule);
+    return ApiResponseDto.success(schedule);
   }
 
   /**
@@ -63,10 +63,10 @@ public class ScheduleController {
    * @return 스케줄 목록
    */
   @GetMapping("/workflows/{workflowId}/schedules")
-  public ApiResponse<List<Schedule>> getSchedulesByWorkflow(@PathVariable Long workflowId) {
+  public ApiResponseDto<List<Schedule>> getSchedulesByWorkflow(@PathVariable Long workflowId) {
     log.info("워크플로우 스케줄 목록 조회 요청: Workflow ID {}", workflowId);
     List<Schedule> schedules = scheduleService.getSchedulesByWorkflowId(workflowId);
-    return ApiResponse.success(schedules);
+    return ApiResponseDto.success(schedules);
   }
 
   /**
@@ -76,10 +76,10 @@ public class ScheduleController {
    * @return 스케줄 정보
    */
   @GetMapping("/schedules/{scheduleId}")
-  public ApiResponse<Schedule> getSchedule(@PathVariable Long scheduleId) {
+  public ApiResponseDto<Schedule> getSchedule(@PathVariable Long scheduleId) {
     log.info("스케줄 조회 요청: Schedule ID {}", scheduleId);
     Schedule schedule = scheduleService.getScheduleById(scheduleId);
-    return ApiResponse.success(schedule);
+    return ApiResponseDto.success(schedule);
   }
 
   /**
@@ -93,7 +93,7 @@ public class ScheduleController {
    * @return 성공 응답
    */
   @PutMapping("/schedules/{scheduleId}")
-  public ApiResponse<Void> updateSchedule(
+  public ApiResponseDto<Void> updateSchedule(
       @PathVariable Long scheduleId,
       @Valid @RequestBody ScheduleUpdateDto dto,
       @AuthenticationPrincipal AuthCredential authCredential) {
@@ -108,7 +108,7 @@ public class ScheduleController {
     Long userId = authCredential.getId().longValue();
     scheduleService.updateSchedule(scheduleId, dto, userId);
 
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   /**
@@ -121,13 +121,13 @@ public class ScheduleController {
    * @return 성공 응답
    */
   @PatchMapping("/schedules/{scheduleId}/active")
-  public ApiResponse<Void> toggleScheduleActive(
+  public ApiResponseDto<Void> toggleScheduleActive(
       @PathVariable Long scheduleId, @RequestParam Boolean isActive) {
 
     log.info("스케줄 활성화 상태 변경 요청: Schedule ID {} - {}", scheduleId, isActive);
     scheduleService.toggleScheduleActive(scheduleId, isActive);
 
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   /**
@@ -140,9 +140,9 @@ public class ScheduleController {
    */
   @DeleteMapping("/schedules/{scheduleId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  public ApiResponse<Void> deleteSchedule(@PathVariable Long scheduleId) {
+  public ApiResponseDto<Void> deleteSchedule(@PathVariable Long scheduleId) {
     log.info("스케줄 삭제 요청: Schedule ID {}", scheduleId);
     scheduleService.deleteSchedule(scheduleId);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 }
