@@ -39,6 +39,12 @@ spring:
     jdbc:
       initialize-schema: never
       platform: mysql # MariaDB는 mysql 스크립트와 호환
+    # 📌 Quartz의 Clustering설정
+    properties:
+      org.quartz.scheduler.instanceName: IcebangScheduler
+      org.quartz.scheduler.instanceId: AUTO  # 자동 ID 생성
+      org.quartz.jobStore.isClustered: true  # 클러스터링 활성화
+      org.quartz.jobStore.clusterCheckinInterval: 20000  # 20초마다 체크인
 
   sql:
     init:

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.domain.email.dto.EmailRequest;
+import site.icebang.domain.email.dto.EmailRequestDto;
 
 @Service
 @Profile({"develop", "test-e2e", "test-integration", "test-unit"})
@@ -13,9 +13,9 @@ import site.icebang.domain.email.dto.EmailRequest;
 public class MockEmailService implements EmailService {
 
   @Override
-  public void send(EmailRequest emailRequest) {
-    log.info("Mock send mail to: {}", emailRequest.getTo());
-    log.info("Subject: {}", emailRequest.getSubject());
-    log.info("Body: {}", emailRequest.getBody());
+  public void send(EmailRequestDto emailRequestDto) {
+    log.info("Mock send mail to: {}", emailRequestDto.getTo());
+    log.info("Subject: {}", emailRequestDto.getSubject());
+    log.info("Body: {}", emailRequestDto.getBody());
   }
 }

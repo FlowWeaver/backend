@@ -14,7 +14,7 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.common.dto.ApiResponse;
+import site.icebang.common.dto.ApiResponseDto;
 import site.icebang.domain.auth.dto.LoginRequestDto;
 import site.icebang.domain.auth.dto.RegisterDto;
 import site.icebang.domain.auth.model.AuthCredential;
@@ -29,13 +29,13 @@ public class AuthController {
 
   @PostMapping("/register")
   @ResponseStatus(HttpStatus.CREATED)
-  public ApiResponse<Void> register(@Valid @RequestBody RegisterDto registerDto) {
+  public ApiResponseDto<Void> register(@Valid @RequestBody RegisterDto registerDto) {
     authService.registerUser(registerDto);
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   @PostMapping("/login")
-  public ApiResponse<?> login(
+  public ApiResponseDto<?> login(
       @RequestBody LoginRequestDto request, HttpServletRequest httpRequest) {
     UsernamePasswordAuthenticationToken token =
         new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword());
@@ -49,21 +49,22 @@ public class AuthController {
         HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY,
         SecurityContextHolder.getContext());
 
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 
   @GetMapping("/check-session")
-  public ApiResponse<Boolean> checkSession(@AuthenticationPrincipal AuthCredential user) {
-    return ApiResponse.success(user != null);
+  public ApiResponseDto<Boolean> checkSession(@AuthenticationPrincipal AuthCredential user) {
+    return ApiResponseDto.success(user != null);
   }
 
   @GetMapping("/permissions")
-  public ApiResponse<AuthCredential> getPermissions(@AuthenticationPrincipal AuthCredential user) {
-    return ApiResponse.success(user);
+  public ApiResponseDto<AuthCredential> getPermissions(
+      @AuthenticationPrincipal AuthCredential user) {
+    return ApiResponseDto.success(user);
   }
 
   @PostMapping("/logout")
-  public ApiResponse<Void> logout(HttpServletRequest request) {
+  public ApiResponseDto<Void> logout(HttpServletRequest request) {
     // SecurityContext 정리
     SecurityContextHolder.clearContext();
 
@@ -73,6 +74,6 @@ public class AuthController {
       session.invalidate();
     }
 
-    return ApiResponse.success(null);
+    return ApiResponseDto.success(null);
   }
 }

@@ -112,4 +112,12 @@
             updated_at = UTC_TIMESTAMP()
         WHERE workflow_id = #{workflowId}
     </update>
+
+    <!-- 스케줄 ID로 단건 조회 -->
+    <select id="findById" resultMap="ScheduleResultMap">
+        SELECT *
+        FROM schedule
+        WHERE id = #{id}
+            LIMIT 1
+    </select>
 </mapper>

@@ -6,6 +6,8 @@ import java.util.Map;
 
 import lombok.Data;
 
+import site.icebang.domain.schedule.dto.ScheduleDto;
+
 @Data
 public class WorkflowDetailCardDto extends WorkflowCardDto {
   private String defaultConfig;

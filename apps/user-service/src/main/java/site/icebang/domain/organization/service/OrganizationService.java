@@ -8,7 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 
-import site.icebang.domain.department.dto.DepartmentCardDo;
+import site.icebang.domain.department.dto.DepartmentCardDto;
 import site.icebang.domain.organization.dto.OrganizationCardDto;
 import site.icebang.domain.organization.dto.OrganizationOptionDto;
 import site.icebang.domain.organization.mapper.OrganizationMapper;
@@ -26,7 +26,7 @@ public class OrganizationService {
   }
 
   public OrganizationOptionDto getOrganizationOptions(BigInteger id) {
-    List<DepartmentCardDo> departments = organizationMapper.findDepartmentsByOrganizationId(id);
+    List<DepartmentCardDto> departments = organizationMapper.findDepartmentsByOrganizationId(id);
     List<PositionCardDto> positions = organizationMapper.findPositionsByOrganizationId(id);
     List<RoleCardDto> roles = organizationMapper.findRolesByOrganizationId(id);
 

@@ -3,25 +3,21 @@ package site.icebang.domain.workflow.service;
 import java.math.BigInteger;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import org.quartz.CronExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
-import site.icebang.common.dto.PageParams;
-import site.icebang.common.dto.PageResult;
+import site.icebang.common.dto.PageParamsDto;
+import site.icebang.common.dto.PageResultDto;
 import site.icebang.common.exception.DuplicateDataException;
 import site.icebang.common.service.PageableService;
-import site.icebang.domain.schedule.mapper.ScheduleMapper;
-import site.icebang.domain.schedule.model.Schedule;
-import site.icebang.domain.schedule.service.QuartzScheduleService;
+import site.icebang.domain.schedule.dto.ScheduleDto;
+import site.icebang.domain.schedule.service.ScheduleService;
 import site.icebang.domain.workflow.dto.*;
 import site.icebang.domain.workflow.mapper.JobMapper;
 import site.icebang.domain.workflow.mapper.TaskIoDataMapper;
@@ -50,8 +46,7 @@ import site.icebang.domain.workflow.model.TaskIoData;
 public class WorkflowService implements PageableService<WorkflowCardDto> {
 
   private final WorkflowMapper workflowMapper;
-  private final ScheduleMapper scheduleMapper;
-  private final QuartzScheduleService quartzScheduleService;
+  private final ScheduleService scheduleService;
   private final JobMapper jobMapper;
   private final TaskMapper taskMapper;
   private final TaskIoDataMapper taskIoDataMapper;
@@ -62,18 +57,18 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
    * <p>이 메소드는 {@code PageableService} 인터페이스를 구현하며, {@code PageResult} 유틸리티를 사용하여 전체 카운트 쿼리와 목록 조회
    * 쿼리를 실행하고 페이징 결과를 생성합니다.
    *
-   * @param pageParams 페이징 처리에 필요한 파라미터 (페이지 번호, 페이지 크기 등)
+   * @param pageParamsDto 페이징 처리에 필요한 파라미터 (페이지 번호, 페이지 크기 등)
    * @return 페이징 처리된 워크플로우 카드 목록
-   * @see PageResult
+   * @see PageResultDto
    * @since v0.1.0
    */
   @Override
   @Transactional(readOnly = true)
-  public PageResult<WorkflowCardDto> getPagedResult(PageParams pageParams) {
-    return PageResult.from(
-        pageParams,
-        () -> workflowMapper.selectWorkflowList(pageParams),
-        () -> workflowMapper.selectWorkflowCount(pageParams));
+  public PageResultDto<WorkflowCardDto> getPagedResult(PageParamsDto pageParamsDto) {
+    return PageResultDto.from(
+        pageParamsDto,
+        () -> workflowMapper.selectWorkflowList(pageParamsDto),
+        () -> workflowMapper.selectWorkflowCount(pageParamsDto));
   }
 
   /**
@@ -123,24 +118,22 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
     // 2. 비즈니스 검증
     validateBusinessRules(dto);
 
-    // 3. 스케줄 검증 (있는 경우만)
+    // 3. 스케줄 검증 - ScheduleService로 위임
     if (dto.hasSchedules()) {
-      validateSchedules(dto.getSchedules());
+      scheduleService.validateSchedules(dto.getSchedules());
     }
 
     // 4. 워크플로우 이름 중복 체크
     if (workflowMapper.existsByName(dto.getName())) {
-      throw new IllegalArgumentException("이미 존재하는 워크플로우 이름입니다: " + dto.getName());
+      throw new DuplicateDataException("이미 존재하는 워크플로우 이름입니다: " + dto.getName());
     }
 
     // 5. 워크플로우 생성
     Long workflowId = null;
     try {
-      // JSON 설정 생성
-      String defaultConfigJson = dto.genertateDefaultConfigJson();
+      String defaultConfigJson = dto.generateDefaultConfigJson();
       dto.setDefaultConfigJson(defaultConfigJson);
 
-      // DB 삽입 파라미터 구성
       Map<String, Object> params = new HashMap<>();
       params.put("dto", dto);
       params.put("createdBy", createdBy);
@@ -150,7 +143,6 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
         throw new RuntimeException("워크플로우 생성에 실패했습니다");
       }
 
-      // 생성된 workflow ID 추출
       Object generatedId = params.get("id");
       workflowId =
           (generatedId instanceof BigInteger)
@@ -164,9 +156,10 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
       throw new RuntimeException("워크플로우 생성 중 오류가 발생했습니다", e);
     }
 
-    // 6. 스케줄 등록 (있는 경우만)
+    // 6. 스케줄 등록 - ScheduleService로 위임
     if (dto.hasSchedules() && workflowId != null) {
-      registerSchedules(workflowId, dto.getSchedules(), createdBy.longValue());
+      scheduleService.validateAndRegisterSchedules(
+          workflowId, dto.getSchedules(), createdBy.longValue());
     }
   }
 
@@ -299,115 +292,105 @@ public class WorkflowService implements PageableService<WorkflowCardDto> {
   }
 
   /**
-   * 스케줄 목록 검증
+   * 워크플로우를 비활성화하고 모든 스케줄을 중단합니다.
    *
-   * <p>크론 표현식 유효성 및 중복 검사를 수행합니다.
+   * <p>워크플로우와 연결된 모든 스케줄을 비활성화하고, Quartz 스케줄러에서도 제거합니다.
    *
-   * @param schedules 검증할 스케줄 목록
-   * @throws IllegalArgumentException 유효하지 않은 크론식
-   * @throws DuplicateDataException 중복 크론식 발견
+   * @param workflowId 비활성화할 워크플로우 ID
+   * @throws IllegalArgumentException 워크플로우가 존재하지 않을 경우
    */
-  private void validateSchedules(List<ScheduleCreateDto> schedules) {
-    if (schedules == null || schedules.isEmpty()) {
-      return;
+  @Transactional
+  public void deactivateWorkflow(BigInteger workflowId) {
+    log.info("워크플로우 비활성화 시작: Workflow ID {}", workflowId);
+
+    // 1. 워크플로우 존재 확인
+    WorkflowDetailCardDto workflow = workflowMapper.selectWorkflowDetailById(workflowId);
+    if (workflow == null) {
+      throw new IllegalArgumentException("워크플로우를 찾을 수 없습니다: " + workflowId);
     }
 
-    // 중복 크론식 검사 (같은 요청 내에서)
-    Set<String> cronExpressions = new HashSet<>();
-
-    for (ScheduleCreateDto schedule : schedules) {
-      String cron = schedule.getCronExpression();
-
-      // 1. 크론 표현식 유효성 검증 (Quartz 기준)
-      if (!isValidCronExpression(cron)) {
-        throw new IllegalArgumentException("유효하지 않은 크론 표현식입니다: " + cron);
-      }
-
-      // 2. 중복 크론식 검사
-      if (cronExpressions.contains(cron)) {
-        throw new DuplicateDataException("중복된 크론 표현식이 있습니다: " + cron);
-      }
-      cronExpressions.add(cron);
+    // 2. 워크플로우 비활성화
+    int result = workflowMapper.updateWorkflowEnabled(workflowId, false);
+    if (result != 1) {
+      throw new RuntimeException("워크플로우 비활성화에 실패했습니다: " + workflowId);
     }
+
+    // 3. 스케줄 비활성화 - ScheduleService로 위임
+    scheduleService.deactivateAllByWorkflowId(workflowId.longValue());
+
+    log.info("워크플로우 비활성화 완료: Workflow ID {}", workflowId);
   }
 
   /**
-   * Quartz 크론 표현식 유효성 검증
+   * 워크플로우를 활성화하고 모든 스케줄을 재등록합니다.
    *
-   * @param cronExpression 검증할 크론 표현식
-   * @return 유효하면 true
+   * <p>워크플로우를 활성화하고, 연결된 활성 스케줄들을 Quartz에 재등록합니다.
+   *
+   * @param workflowId 활성화할 워크플로우 ID
+   * @throws IllegalArgumentException 워크플로우가 존재하지 않을 경우
    */
-  private boolean isValidCronExpression(String cronExpression) {
-    try {
-      new CronExpression(cronExpression);
-      return true;
-    } catch (Exception e) {
-      log.warn("유효하지 않은 크론 표현식: {}", cronExpression, e);
-      return false;
+  @Transactional
+  public void activateWorkflow(BigInteger workflowId) {
+    log.info("워크플로우 활성화 시작: Workflow ID {}", workflowId);
+
+    // 1. 워크플로우 존재 확인
+    WorkflowDetailCardDto workflow = workflowMapper.selectWorkflowDetailById(workflowId);
+    if (workflow == null) {
+      throw new IllegalArgumentException("워크플로우를 찾을 수 없습니다: " + workflowId);
     }
+
+    // 2. 워크플로우 활성화
+    int result = workflowMapper.updateWorkflowEnabled(workflowId, true);
+    if (result != 1) {
+      throw new RuntimeException("워크플로우 활성화에 실패했습니다: " + workflowId);
+    }
+
+    // 3. 스케줄 재활성화 - ScheduleService로 위임
+    int reactivatedCount = scheduleService.reactivateAllByWorkflowId(workflowId.longValue());
+
+    log.info("워크플로우 활성화 완료: Workflow ID {} - {}개 스케줄 재등록", workflowId, reactivatedCount);
   }
 
   /**
-   * 스케줄 목록 등록 (DB 저장 + Quartz 등록)
+   * 워크플로우를 삭제합니다 (논리 삭제).
    *
-   * <p>트랜잭션 내에서 DB 저장을 수행하고, Quartz 등록은 실패해도 워크플로우는 유지되도록 예외를 로그로만 처리합니다.
+   * <p>워크플로우를 비활성화하고, 모든 스케줄을 중단하며, Quartz에서 제거합니다. 실제 DB에서 삭제하지 않고 비활성화 처리합니다.
+   *
+   * @param workflowId 삭제할 워크플로우 ID
+   * @throws IllegalArgumentException 워크플로우가 존재하지 않을 경우
+   */
+  @Transactional
+  public void deleteWorkflow(BigInteger workflowId) {
+    log.info("워크플로우 삭제 시작: Workflow ID {}", workflowId);
+
+    // 1. 워크플로우 존재 확인
+    WorkflowDetailCardDto workflow = workflowMapper.selectWorkflowDetailById(workflowId);
+    if (workflow == null) {
+      throw new IllegalArgumentException("워크플로우를 찾을 수 없습니다: " + workflowId);
+    }
+
+    // 2. 워크플로우 비활성화 (논리 삭제)
+    deactivateWorkflow(workflowId);
+
+    log.info("워크플로우 삭제 완료: Workflow ID {}", workflowId);
+  }
+
+  /**
+   * 워크플로우의 특정 스케줄만 삭제합니다.
+   *
+   * <p>스케줄을 DB에서 비활성화하고 Quartz에서 제거합니다.
    *
    * @param workflowId 워크플로우 ID
-   * @param scheduleCreateDtos 등록할 스케줄 목록
-   * @param userId 생성자 ID
+   * @param scheduleId 삭제할 스케줄 ID
+   * @throws IllegalArgumentException 스케줄이 존재하지 않거나 워크플로우에 속하지 않을 경우
    */
-  private void registerSchedules(
-      Long workflowId, List<ScheduleCreateDto> scheduleCreateDtos, Long userId) {
-    if (scheduleCreateDtos == null || scheduleCreateDtos.isEmpty()) {
-      return;
-    }
+  @Transactional
+  public void deleteWorkflowSchedule(BigInteger workflowId, Long scheduleId) {
+    log.info("워크플로우 스케줄 삭제 시작: Workflow ID {}, Schedule ID {}", workflowId, scheduleId);
 
-    log.info("스케줄 등록 시작: Workflow ID {} - {}개", workflowId, scheduleCreateDtos.size());
+    // ScheduleService로 위임하여 검증 + 삭제 처리
+    scheduleService.deleteSchedule(scheduleId);
 
-    int successCount = 0;
-    int failCount = 0;
-
-    for (ScheduleCreateDto dto : scheduleCreateDtos) {
-      try {
-        // 1. DTO → Model 변환
-        Schedule schedule = dto.toEntity(workflowId, userId);
-
-        // 2. DB 중복 체크 (같은 워크플로우 + 같은 크론식)
-        if (scheduleMapper.existsByWorkflowIdAndCronExpression(
-            workflowId, schedule.getCronExpression())) {
-          throw new DuplicateDataException(
-              "이미 동일한 크론식의 스케줄이 존재합니다: " + schedule.getCronExpression());
-        }
-
-        // 3. DB 저장
-        int insertResult = scheduleMapper.insertSchedule(schedule);
-        if (insertResult != 1) {
-          log.error("스케줄 DB 저장 실패: Workflow ID {} - {}", workflowId, schedule.getCronExpression());
-          failCount++;
-          continue;
-        }
-
-        // 4. Quartz 등록 (실시간 반영)
-        quartzScheduleService.addOrUpdateSchedule(schedule);
-
-        log.info(
-            "스케줄 등록 완료: Workflow ID {} - {} ({})",
-            workflowId,
-            schedule.getCronExpression(),
-            schedule.getScheduleText());
-        successCount++;
-
-      } catch (DuplicateDataException e) {
-        log.warn("스케줄 중복으로 등록 건너뜀: Workflow ID {} - {}", workflowId, dto.getCronExpression());
-        failCount++;
-        // 중복은 경고만 하고 계속 진행
-      } catch (Exception e) {
-        log.error("스케줄 등록 실패: Workflow ID {} - {}", workflowId, dto.getCronExpression(), e);
-        failCount++;
-        // 스케줄 등록 실패해도 워크플로우는 유지
-      }
-    }
-
-    log.info("스케줄 등록 완료: Workflow ID {} - 성공 {}개, 실패 {}개", workflowId, successCount, failCount);
+    log.info("워크플로우 스케줄 삭제 완료: Workflow ID {}, Schedule ID {}", workflowId, scheduleId);
   }
 }

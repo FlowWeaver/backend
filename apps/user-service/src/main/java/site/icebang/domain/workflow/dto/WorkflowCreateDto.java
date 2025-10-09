@@ -3,6 +3,8 @@ package site.icebang.domain.workflow.dto;
 import java.math.BigInteger;
 import java.util.List;
 
+import org.springframework.util.CollectionUtils;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import jakarta.validation.Valid;
@@ -11,6 +13,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import site.icebang.domain.schedule.dto.ScheduleCreateDto;
 
 /**
  * 워크플로우 생성 요청 DTO
@@ -79,7 +83,7 @@ public class WorkflowCreateDto {
   // JSON 변환용 필드 (MyBatis에서 사용)
   private String defaultConfigJson;
 
-  public String genertateDefaultConfigJson() {
+  public String generateDefaultConfigJson() {
     StringBuilder jsonBuilder = new StringBuilder();
     jsonBuilder.append("{");
 
@@ -133,6 +137,6 @@ public class WorkflowCreateDto {
    * @return 스케줄이 1개 이상 있으면 true
    */
   public boolean hasSchedules() {
-    return schedules != null && !schedules.isEmpty();
+    return !CollectionUtils.isEmpty(schedules);
   }
 }

@@ -93,4 +93,12 @@ public interface ScheduleMapper {
    * @return 영향받은 행 수
    */
   int deactivateAllByWorkflowId(@Param("workflowId") Long workflowId);
+
+  /**
+   * 스케줄 ID로 단건 조회
+   *
+   * @param id 스케줄 ID
+   * @return 스케줄 정보, 없으면 null
+   */
+  Schedule findById(@Param("id") Long id);
 }

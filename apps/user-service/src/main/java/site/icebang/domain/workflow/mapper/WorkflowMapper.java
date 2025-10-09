@@ -3,15 +3,17 @@ package site.icebang.domain.workflow.mapper;
 import java.math.BigInteger;
 import java.util.*;
 
-import site.icebang.common.dto.PageParams;
-import site.icebang.domain.workflow.dto.ScheduleDto;
+import org.apache.ibatis.annotations.Param;
+
+import site.icebang.common.dto.PageParamsDto;
+import site.icebang.domain.schedule.dto.ScheduleDto;
 import site.icebang.domain.workflow.dto.WorkflowCardDto;
 import site.icebang.domain.workflow.dto.WorkflowDetailCardDto;
 
 public interface WorkflowMapper {
-  List<WorkflowCardDto> selectWorkflowList(PageParams pageParams);
+  List<WorkflowCardDto> selectWorkflowList(PageParamsDto pageParamsDto);
 
-  int selectWorkflowCount(PageParams pageParams);
+  int selectWorkflowCount(PageParamsDto pageParamsDto);
 
   int insertWorkflow(Map<String, Object> params); // insert workflow
 
@@ -31,4 +33,9 @@ public interface WorkflowMapper {
   List<ScheduleDto> selectSchedulesByWorkflowId(BigInteger workflowId);
 
   List<Map<String, Object>> selectWorkflowWithJobsAndTasks(BigInteger workflowId);
+
+  int updateWorkflowEnabled(
+      @Param("workflowId") BigInteger workflowId, @Param("isEnabled") Boolean isEnabled);
+
+  int markAsDeleted(@Param("workflowId") BigInteger workflowId);
 }
