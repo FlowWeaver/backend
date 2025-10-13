@@ -180,7 +180,7 @@ GitHub Actions 기반으로 빌드 → 테스트 → Docker 빌드 및 푸시 �
 Monorepo 형태로, `apps` 하위에 서비스별 디렉토리가 존재합니다.
 
 ```bash
-Final-4team-icebang/
+backend/
 ├── apps/
 │   ├── user-service/          # Java/Spring Boot 서비스
 │   └── pre-processing-service/# Python/FastAPI 서비스
