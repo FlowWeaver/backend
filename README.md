@@ -171,6 +171,7 @@ GitHub Actions 기반으로 빌드 → 테스트 → Docker 빌드 및 푸시 �
 * **WorkflowExecutionService**: 워크플로우 전체 실행 흐름 제어
 * **TaskExecutionService**: Task 실행 및 재시도 정책 관리
 * **TaskBodyBuilder (전략 패턴)**: 각 Task별 동적 Request Body 생성
+* **WorkflowContextService (퍼사드 패턴)**: 각 TaskBodyBuilder가 이전 Task의 결과를 조회할 때 필요한 복잡한 DB 접근 로직(TaskIoDataMapper 사용 등)을 캡슐화하고, 단순화된 인터페이스를 제공하는 퍼사드(Facade) 역할
 * **FastApiAdapter**: FastAPI 서버 통신 캡슐화
 * **QuartzSchedulerInitializer**: DB 스케줄 정보 Quartz 엔진 동기화
 * **ExecutionMdcManager**: 비동기 환경에서도 traceId 기반 분산 추적 로깅
