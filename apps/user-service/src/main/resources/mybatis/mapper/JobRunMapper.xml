@@ -25,4 +25,14 @@
         WHERE id = #{id}
     </update>
 
+    <select id="findSuccessfulJobByWorkflowRunId" resultMap="JobRunResultMap">
+        SELECT *
+        FROM job_run
+        WHERE workflow_run_id = #{workflowRunId}
+          AND job_id = #{jobId}
+          AND status = 'SUCCESS'
+        ORDER BY id DESC
+        LIMIT 1
+    </select>
+
 </mapper>

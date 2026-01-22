@@ -19,4 +19,14 @@ public class RequestContextDto {
   public static RequestContextDto forScheduler(String traceId) {
     return new RequestContextDto(traceId, "scheduler", "quartz-scheduler");
   }
+
+  /**
+   * 시스템 복구 실행용 컨텍스트를 생성하는 정적 팩토리 메서드입니다.
+   *
+   * @param traceId 기존 실행에서 사용하던 추적 ID
+   * @return 복구용 RequestContext 객체
+   */
+  public static RequestContextDto forRecovery(String traceId) {
+    return new RequestContextDto(traceId, "system-recovery", "workflow-system-recovery");
+  }
 }

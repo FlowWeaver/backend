@@ -25,4 +25,8 @@
         WHERE id = #{id}
     </update>
 
+    <select id="findByStatus" resultMap="WorkflowRunResultMap">
+        SELECT * FROM workflow_run WHERE status = #{status}
+    </select>
+
 </mapper>
