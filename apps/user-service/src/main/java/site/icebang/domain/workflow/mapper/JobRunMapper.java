@@ -1,6 +1,7 @@
 package site.icebang.domain.workflow.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import site.icebang.domain.workflow.model.JobRun;
 
@@ -9,4 +10,6 @@ public interface JobRunMapper {
   void insert(JobRun jobRun);
 
   void update(JobRun jobRun);
+
+  JobRun findSuccessfulJobByTraceId(@Param("traceId") String traceId, @Param("jobId") Long jobId);
 }
