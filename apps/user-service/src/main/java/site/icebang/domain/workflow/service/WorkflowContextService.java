@@ -25,8 +25,8 @@ public class WorkflowContextService {
   private final ObjectMapper objectMapper;
 
   /**
-   * 전체 워크플로우 실행 범위(WorkflowRun) 내에서, 이전에 성공한 Task의 이름으로 결과(Output)를 조회합니다.
-   * Resume(이어하기) 시, 이전 Job이 스킵되더라도 DB에서 전체 이력을 조회하여 데이터를 가져옵니다.
+   * 전체 워크플로우 실행 범위(WorkflowRun) 내에서, 이전에 성공한 Task의 이름으로 결과(Output)를 조회합니다. Resume(이어하기) 시, 이전 Job이
+   * 스킵되더라도 DB에서 전체 이력을 조회하여 데이터를 가져옵니다.
    *
    * @param jobRun 현재 실행중인 JobRun (내부의 workflowRunId를 사용하여 전체 범위 조회)
    * @param sourceTaskName 결과를 조회할 이전 Task의 이름
@@ -35,7 +35,8 @@ public class WorkflowContextService {
   public Optional<JsonNode> getPreviousTaskOutput(JobRun jobRun, String sourceTaskName) {
     Long workflowRunId = jobRun.getWorkflowRunId();
     try {
-      return Optional.ofNullable(taskRunMapper.findSuccessfulTaskRunByWorkflowRunId(workflowRunId, sourceTaskName))
+      return Optional.ofNullable(
+              taskRunMapper.findSuccessfulTaskRunByWorkflowRunId(workflowRunId, sourceTaskName))
           .flatMap(taskRun -> taskIoDataMapper.findOutputByTaskRunId(taskRun.getId()))
           .map(this::parseJson);
     } catch (Exception e) {
@@ -45,11 +46,11 @@ public class WorkflowContextService {
   }
 
   private JsonNode parseJson(TaskIoData ioData) {
-      try {
-          return objectMapper.readTree(ioData.getDataValue());
-      } catch (Exception e) {
-          log.error("TaskIoData JSON 파싱 실패: TaskIoDataId={}", ioData.getId(), e);
-          return null;
-      }
+    try {
+      return objectMapper.readTree(ioData.getDataValue());
+    } catch (Exception e) {
+      log.error("TaskIoData JSON 파싱 실패: TaskIoDataId={}", ioData.getId(), e);
+      return null;
+    }
   }
 }

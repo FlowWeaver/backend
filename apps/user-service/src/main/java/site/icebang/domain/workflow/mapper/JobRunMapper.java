@@ -12,7 +12,5 @@ public interface JobRunMapper {
   void update(JobRun jobRun);
 
   JobRun findSuccessfulJobByWorkflowRunId(
-      @Param("workflowRunId") Long workflowRunId,
-      @Param("jobId") Long jobId
-  );
+      @Param("workflowRunId") Long workflowRunId, @Param("jobId") Long jobId);
 }
