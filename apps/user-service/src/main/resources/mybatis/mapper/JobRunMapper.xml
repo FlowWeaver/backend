@@ -25,14 +25,13 @@
         WHERE id = #{id}
     </update>
 
-    <select id="findSuccessfulJobByTraceId" resultMap="JobRunResultMap">
-        SELECT j.*
-        FROM job_run j
-        JOIN workflow_run w ON j.workflow_run_id = w.id
-        WHERE w.trace_id = #{traceId}
-          AND j.job_id = #{jobId}
-          AND j.status = 'SUCCESS'
-        ORDER BY j.id DESC
+    <select id="findSuccessfulJobByWorkflowRunId" resultMap="JobRunResultMap">
+        SELECT *
+        FROM job_run
+        WHERE workflow_run_id = #{workflowRunId}
+          AND job_id = #{jobId}
+          AND status = 'SUCCESS'
+        ORDER BY id DESC
         LIMIT 1
     </select>
 

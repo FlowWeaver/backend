@@ -11,5 +11,8 @@ public interface JobRunMapper {
 
   void update(JobRun jobRun);
 
-  JobRun findSuccessfulJobByTraceId(@Param("traceId") String traceId, @Param("jobId") Long jobId);
+  JobRun findSuccessfulJobByWorkflowRunId(
+      @Param("workflowRunId") Long workflowRunId,
+      @Param("jobId") Long jobId
+  );
 }
