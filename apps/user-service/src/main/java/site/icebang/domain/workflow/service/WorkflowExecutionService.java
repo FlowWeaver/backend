@@ -86,15 +86,15 @@ public class WorkflowExecutionService {
         Job job = new Job(jobDto);
         mdcManager.setJobContext(job.getId());
 
-        // 이미 성공적으로 수행된 Job인지 확인합니다.
+        // 📌 이미 성공한 Job인지 확인하여 중복 실행 방지 (Resume 기능)
         JobRun existingSuccessfulJob =
-            jobRunMapper.findSuccessfulJobByTraceId(context.getTraceId(), job.getId());
+            jobRunMapper.findSuccessfulJobByWorkflowRunId(workflowRun.getId(), job.getId());
         if (existingSuccessfulJob != null) {
           workflowLogger.info(
               "---------- Job 스킵 (이미 성공함): JobId={}, PreviousJobRunId={} ----------",
               job.getId(),
               existingSuccessfulJob.getId());
-          continue; // 이미 성공했으므로 실행하지 않고 다음 Job으로 넘어갑니다.
+          continue;
         }
 
         JobRun jobRun = JobRun.start(workflowRun.getId(), job.getId());

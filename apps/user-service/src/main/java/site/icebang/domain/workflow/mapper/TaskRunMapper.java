@@ -1,8 +1,7 @@
 package site.icebang.domain.workflow.mapper;
 
-import java.util.Optional;
-
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
 
 import site.icebang.domain.workflow.model.TaskRun;
 
@@ -12,5 +11,6 @@ public interface TaskRunMapper {
 
   void update(TaskRun taskRun);
 
-  Optional<TaskRun> findLatestSuccessRunInJob(Long jobRunId, String taskName);
+  TaskRun findSuccessfulTaskRunByWorkflowRunId(
+      @Param("workflowRunId") Long workflowRunId, @Param("taskName") String taskName);
 }

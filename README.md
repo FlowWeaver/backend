@@ -16,7 +16,9 @@
 8. [주요 구성 요소 및 역할](#8-주요-구성-요소-및-역할)
 9. [프로젝트 디렉토리 구조](#9-프로젝트-디렉토리-구조)
 10. [환경 변수 관리 전략](#10-환경-변수-관리-전략)
-11. [시연 영상](#11-시연-영상)
+11. [실행 방법 (Getting Started)](#11-실행-방법-getting-started)
+12. [배포 방법 (Deployment)](#12-배포-방법-deployment)
+13. [시연 영상](#13-시연-영상)
 
 ---
 
@@ -223,14 +225,201 @@ pre-processing-service/
 
 ## 10. 환경 변수 관리 전략
 
-추후 작성 예정
 
-* **FastAPI (`pre-processing-service`)**:
-* **Spring Boot (`user-service`)**:
+
+각 서비스는 환경별 설정 관리를 위해 다음과 같은 전략을 사용합니다.
+
+
+
+### 10.1. FastAPI (`pre-processing-service`)
+
+
+
+`.env` 파일을 통해 환경 변수를 로드합니다. `apps/pre-processing-service/app/core/config.py`의 `BaseSettings`를 기반으로 동작합니다.
+
+
+
+*   **필수 변수**:
+
+    *   `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASS`, `DB_NAME`: MariaDB 연결 정보
+
+    *   `LOKI_HOST`, `LOKI_PORT`: Loki 로깅 서버 정보
+
+    *   `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`, `S3_BUCKET_NAME`: AWS S3 저장소 설정 (OCR 및 이미지 업로드)
+
+*   **선택 변수**:
+
+    *   `OPENAI_API_KEY`: AI 콘텐츠 생성 기능 사용 시 필요
+
+    *   `MODE`: `dev` 또는 `prd` (기본값: `dev`)
+
+
+
+### 10.2. Spring Boot (`user-service`)
+
+
+
+Spring Profiles(`develop`, `production`)를 사용하여 환경을 분리합니다.
+
+
+
+*   **Local (Develop)**: `application-develop.yml`을 사용하며, 로컬 Docker 인프라(localhost)에 맞춰져 있습니다.
+
+*   **Production**: `application-production.yml`을 사용하며, 민감한 정보(DB 비밀번호, API 키 등)는 **배포 시점의 환경 변수** 또는 **Docker Compose의 environment** 설정을 통해 주입받습니다.
+
+
 
 ---
 
-## 11. 시연 영상
+
+
+## 11. 실행 방법 (Getting Started)
+
+
+
+로컬 개발 환경에서 프로젝트를 실행하는 방법입니다.
+
+
+
+### 11.1. 사전 준비 사항 (Prerequisites)
+
+
+
+*   **Java 21** (Amazon Corretto 21 권장)
+
+*   **Python 3.11** (Poetry 패키지 매니저 설치 필요)
+
+*   **Docker & Docker Compose**
+
+
+
+### 11.2. 1단계: 인프라 실행 (Database & Monitoring)
+
+
+
+프로젝트 실행에 필요한 DB(MariaDB)와 모니터링 도구(Loki, Promtail, Grafana)를 Docker로 실행합니다.
+
+
+
+```bash
+
+cd docker/local
+
+docker-compose up -d
+
+```
+
+
+
+### 11.3. 2단계: Backend (FastAPI - Worker) 실행
+
+
+
+Python 기반의 AI/전처리 워커 서비스를 실행합니다.
+
+
+
+```bash
+
+cd apps/pre-processing-service
+
+
+
+# 1. 의존성 설치
+
+poetry install
+
+
+
+# 2. 서비스 실행 (Uvicorn)
+
+poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+```
+
+
+
+### 11.4. 3단계: Backend (Spring Boot - Orchestrator) 실행
+
+
+
+Java 기반의 메인 오케스트레이터 서비스를 실행합니다.
+
+
+
+```bash
+
+cd apps/user-service
+
+
+
+# develop 프로파일로 실행
+
+./gradlew bootRun --args='--spring.profiles.active=develop'
+
+```
+
+
+
+*   **API 문서 (Swagger)**:
+
+    *   Spring Boot: `http://localhost:8081/swagger-ui/index.html` (설정 필요 시)
+
+    *   FastAPI: `http://localhost:8000/docs`
+
+
+
+---
+
+
+
+## 12. 배포 방법 (Deployment)
+
+
+
+본 프로젝트는 **GitHub Actions**를 통해 CI/CD 파이프라인이 구축되어 있습니다.
+
+
+
+### 12.1. CI/CD 파이프라인
+
+
+
+1.  **CI (Continuous Integration)**:
+
+    *   `main` 브랜치에 Push 또는 PR 시 자동으로 Java/Python 테스트 및 빌드가 수행됩니다.
+
+2.  **CD (Continuous Deployment)**:
+
+    *   릴리즈 태그 생성 시 Docker Image를 빌드하여 Docker Hub에 Push 합니다.
+
+    *   AWS EC2 인스턴스에 SSH로 접속하여 최신 이미지를 Pull 하고 `docker-compose`를 재실행합니다.
+
+
+
+### 12.2. 프로덕션 실행 설정
+
+
+
+프로덕션 환경의 Docker 설정은 `docker/production` 디렉토리에 위치합니다.
+
+
+
+```bash
+
+cd docker/production
+
+docker-compose up -d
+
+```
+
+
+
+---
+
+
+
+## 13. 시연 영상
 
 [https://www.youtube.com/watch?v=1vApNttVxVg](https://www.youtube.com/watch?v=1vApNttVxVg)
 [![Video Label](http://img.youtube.com/vi/1vApNttVxVg/0.jpg)](https://www.youtube.com/watch?v=1vApNttVxVg)
