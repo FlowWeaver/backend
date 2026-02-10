@@ -14,8 +14,8 @@ import site.icebang.global.config.properties.FastApiProperties;
 /**
  * 외부 FastAPI 서버와의 모든 HTTP 통신을 전담하는 어댑터 클래스입니다.
  *
- * <p>이 클래스는 내부 시스템의 다른 부분들이 외부 시스템의 상세한 통신 방법을 알 필요가 없도록 HTTP 요청/응답 로직을 캡슐화합니다. {@code
- * RestClient}을 사용하여 실제 통신을 수행하며, 모든 FastAPI 요청은 이 클래스의 {@code call} 메소드를 통해 이루어져야 합니다.
+ * <p>이 클래스는 내부 시스템의 다른 부분들이 외부 시스템의 상세한 통신 방법을 알 필요가 없도록 HTTP 요청/응답 로직을 캡슐화합니다. {@code RestClient}을
+ * 사용하여 실제 통신을 수행하며, 모든 FastAPI 요청은 이 클래스의 {@code call} 메소드를 통해 이루어져야 합니다.
  *
  * <h2>사용 예제:</h2>
  *
