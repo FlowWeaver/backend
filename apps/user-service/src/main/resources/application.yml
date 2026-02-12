@@ -1,6 +1,9 @@
 spring:
   application:
     name: mvp
+  threads:
+    virtual:
+      enabled: true
   profiles:
     active: develop
   test:
