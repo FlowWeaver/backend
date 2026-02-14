@@ -1,4 +1,4 @@
-package site.icebang.global.config.asnyc;
+package site.icebang.global.config.async;
 
 import java.lang.reflect.Method;
 
