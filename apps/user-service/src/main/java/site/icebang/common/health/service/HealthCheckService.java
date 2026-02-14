@@ -1,8 +1,8 @@
 package site.icebang.common.health.service;
 
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +14,7 @@ import site.icebang.global.config.properties.FastApiProperties;
 @RequiredArgsConstructor
 public class HealthCheckService {
 
-  private final RestClient restClient;
+  private final RestTemplate restTemplate;
 
   private final FastApiProperties fastApiProperties;
 
@@ -24,7 +24,7 @@ public class HealthCheckService {
     log.info("Attempting to connect to FastAPI server at: {}", url);
 
     try {
-      return restClient.get().uri(url).retrieve().body(String.class);
+      return restTemplate.getForObject(url, String.class);
     } catch (RestClientException e) {
       log.error("Failed to connect to FastAPI server at {}. Error: {}", url, e.getMessage());
       return "ERROR: Cannot connect to FastAPI";
