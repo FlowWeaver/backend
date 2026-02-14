@@ -14,40 +14,50 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 public class E2eTestConfiguration {
 
-  @Bean
-  public Network testNetwork() {
-    return Network.newNetwork();
+  private static final Network network = Network.newNetwork();
+
+  private static final MariaDBContainer<?> MARIADB =
+      new MariaDBContainer<>("mariadb:11.4")
+          .withNetwork(network)
+          .withDatabaseName("pre_process")
+          .withUsername("mariadb")
+          .withPassword("qwer1234");
+
+  private static final GenericContainer<?> LOKI =
+      new GenericContainer<>(DockerImageName.parse("grafana/loki:2.9.0"))
+          .withNetwork(network)
+          .withNetworkAliases("loki")
+          .withExposedPorts(3100)
+          .withCommand("-config.file=/etc/loki/local-config.yaml")
+          .waitingFor(Wait.forHttp("/ready"))
+          .withStartupTimeout(java.time.Duration.ofMinutes(2));
+
+  static {
+    MARIADB.start();
+    LOKI.start();
+
+    // Log4j2에서 사용할 시스템 프로퍼티 설정
+    System.setProperty("loki-port", String.valueOf(LOKI.getMappedPort(3100)));
+    System.setProperty(
+        "DriverManager.connectionString", MARIADB.getJdbcUrl() + "?serverTimezone=UTC");
+    System.setProperty("DriverManager.driverClassName", "org.mariadb.jdbc.Driver");
+    System.setProperty("DriverManager.userName", MARIADB.getUsername());
+    System.setProperty("DriverManager.password", MARIADB.getPassword());
   }
 
   @Bean
   @ServiceConnection
   MariaDBContainer<?> mariadbContainer() {
-    return new MariaDBContainer<>("mariadb:11.4")
-        .withDatabaseName("pre_process")
-        .withUsername("mariadb")
-        .withPassword("qwer1234");
+    return MARIADB;
   }
 
   @Bean
-  GenericContainer<?> lokiContainer(Network network) {
-    return new GenericContainer<>(DockerImageName.parse("grafana/loki:2.9.0"))
-        .withNetwork(network)
-        .withNetworkAliases("loki")
-        .withExposedPorts(3100)
-        .withCommand("-config.file=/etc/loki/local-config.yaml")
-        .waitingFor(Wait.forHttp("/ready"))
-        .withStartupTimeout(java.time.Duration.ofMinutes(2));
+  GenericContainer<?> lokiContainer() {
+    return LOKI;
   }
 
   @DynamicPropertySource
-  static void configureProperties(
-      DynamicPropertyRegistry registry, MariaDBContainer<?> mariadb, GenericContainer<?> loki) {
-    // MariaDB 연결 설정
-    registry.add("spring.datasource.url", () -> mariadb.getJdbcUrl() + "?serverTimezone=UTC");
-    registry.add("spring.datasource.username", mariadb::getUsername);
-    registry.add("spring.datasource.password", mariadb::getPassword);
-    registry.add("spring.datasource.driver-class-name", () -> "org.mariadb.jdbc.Driver");
-
+  static void configureProperties(DynamicPropertyRegistry registry) {
     // HikariCP 설정
     registry.add("spring.hikari.connection-timeout", () -> "30000");
     registry.add("spring.hikari.idle-timeout", () -> "600000");
@@ -56,6 +66,6 @@ public class E2eTestConfiguration {
     registry.add("spring.hikari.minimum-idle", () -> "5");
     registry.add("spring.hikari.pool-name", () -> "HikariCP-E2E");
 
-    System.setProperty("loki.port", String.valueOf(loki.getMappedPort(3100)));
+    registry.add("loki.port", () -> LOKI.getMappedPort(3100));
   }
 }
