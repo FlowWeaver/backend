@@ -120,10 +120,10 @@ jobs:
 
       - name: Run Tests
         run: |
-          ./gradlew unitTest
-          ./gradlew integrationTest
+          ./gradlew unitTest --no-daemon
+          ./gradlew integrationTest --no-daemon
           if [ "${{ github.base_ref }}" = "main" ] || [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            ./gradlew e2eTest
+            ./gradlew e2eTest --no-daemon
           fi
         working-directory: apps/user-service
 
