@@ -14,17 +14,29 @@ import org.testcontainers.utility.DockerImageName;
 @TestConfiguration(proxyBeanMethods = false)
 public class E2eTestConfiguration {
 
-  private static final Network network = Network.newNetwork();
+  private static Network network;
+  private static MariaDBContainer<?> MARIADB;
+  private static GenericContainer<?> LOKI;
 
-  private static final MariaDBContainer<?> MARIADB =
-      new MariaDBContainer<>("mariadb:11.4")
+  static {
+    try {
+      // 1. CI 환경 안정성을 위한 설정
+      System.setProperty("testcontainers.ryuk.disabled", "true");
+      if (System.getProperty("os.name").toLowerCase().contains("linux")) {
+        // Docker 소켓 경로 명시 (CI 환경에서 못 찾는 경우 대비)
+        System.setProperty("DOCKER_HOST", "unix:///var/run/docker.sock");
+      }
+
+      // 2. 리소스 초기화
+      network = Network.newNetwork();
+
+      MARIADB = new MariaDBContainer<>(DockerImageName.parse("mariadb:11.4"))
           .withNetwork(network)
           .withDatabaseName("pre_process")
           .withUsername("mariadb")
           .withPassword("qwer1234");
 
-  private static final GenericContainer<?> LOKI =
-      new GenericContainer<>(DockerImageName.parse("grafana/loki:2.9.0"))
+      LOKI = new GenericContainer<>(DockerImageName.parse("grafana/loki:2.9.0"))
           .withNetwork(network)
           .withNetworkAliases("loki")
           .withExposedPorts(3100)
@@ -32,17 +44,24 @@ public class E2eTestConfiguration {
           .waitingFor(Wait.forHttp("/ready"))
           .withStartupTimeout(java.time.Duration.ofMinutes(2));
 
-  static {
-    MARIADB.start();
-    LOKI.start();
+      // 3. 컨테이너 시작
+      MARIADB.start();
+      LOKI.start();
 
-    // Log4j2에서 사용할 시스템 프로퍼티 설정
-    System.setProperty("loki-port", String.valueOf(LOKI.getMappedPort(3100)));
-    System.setProperty(
-        "DriverManager.connectionString", MARIADB.getJdbcUrl() + "?serverTimezone=UTC");
-    System.setProperty("DriverManager.driverClassName", "org.mariadb.jdbc.Driver");
-    System.setProperty("DriverManager.userName", MARIADB.getUsername());
-    System.setProperty("DriverManager.password", MARIADB.getPassword());
+      // 4. Log4j2 및 시스템 전역에서 사용할 프로퍼티 설정
+      String lokiPort = String.valueOf(LOKI.getMappedPort(3100));
+      System.setProperty("loki-port", lokiPort);
+      System.setProperty("loki.port", lokiPort);
+      
+      System.setProperty("DriverManager.connectionString", MARIADB.getJdbcUrl() + "?serverTimezone=UTC");
+      System.setProperty("DriverManager.driverClassName", "org.mariadb.jdbc.Driver");
+      System.setProperty("DriverManager.userName", MARIADB.getUsername());
+      System.setProperty("DriverManager.password", MARIADB.getPassword());
+
+    } catch (Exception e) {
+      System.err.println("CRITICAL: Failed to initialize Testcontainers - " + e.getMessage());
+      e.printStackTrace();
+    }
   }
 
   @Bean
@@ -58,7 +77,7 @@ public class E2eTestConfiguration {
 
   @DynamicPropertySource
   static void configureProperties(DynamicPropertyRegistry registry) {
-    // HikariCP 설정
+    // HikariCP 및 Loki 설정 주입
     registry.add("spring.hikari.connection-timeout", () -> "30000");
     registry.add("spring.hikari.idle-timeout", () -> "600000");
     registry.add("spring.hikari.max-lifetime", () -> "1800000");
