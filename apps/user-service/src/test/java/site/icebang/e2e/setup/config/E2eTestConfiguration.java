@@ -30,19 +30,21 @@ public class E2eTestConfiguration {
       // 2. 리소스 초기화
       network = Network.newNetwork();
 
-      MARIADB = new MariaDBContainer<>(DockerImageName.parse("mariadb:11.4"))
-          .withNetwork(network)
-          .withDatabaseName("pre_process")
-          .withUsername("mariadb")
-          .withPassword("qwer1234");
+      MARIADB =
+          new MariaDBContainer<>(DockerImageName.parse("mariadb:11.4"))
+              .withNetwork(network)
+              .withDatabaseName("pre_process")
+              .withUsername("mariadb")
+              .withPassword("qwer1234");
 
-      LOKI = new GenericContainer<>(DockerImageName.parse("grafana/loki:2.9.0"))
-          .withNetwork(network)
-          .withNetworkAliases("loki")
-          .withExposedPorts(3100)
-          .withCommand("-config.file=/etc/loki/local-config.yaml")
-          .waitingFor(Wait.forHttp("/ready"))
-          .withStartupTimeout(java.time.Duration.ofMinutes(2));
+      LOKI =
+          new GenericContainer<>(DockerImageName.parse("grafana/loki:2.9.0"))
+              .withNetwork(network)
+              .withNetworkAliases("loki")
+              .withExposedPorts(3100)
+              .withCommand("-config.file=/etc/loki/local-config.yaml")
+              .waitingFor(Wait.forHttp("/ready"))
+              .withStartupTimeout(java.time.Duration.ofMinutes(2));
 
       // 3. 컨테이너 시작
       MARIADB.start();
@@ -52,8 +54,9 @@ public class E2eTestConfiguration {
       String lokiPort = String.valueOf(LOKI.getMappedPort(3100));
       System.setProperty("loki-port", lokiPort);
       System.setProperty("loki.port", lokiPort);
-      
-      System.setProperty("DriverManager.connectionString", MARIADB.getJdbcUrl() + "?serverTimezone=UTC");
+
+      System.setProperty(
+          "DriverManager.connectionString", MARIADB.getJdbcUrl() + "?serverTimezone=UTC");
       System.setProperty("DriverManager.driverClassName", "org.mariadb.jdbc.Driver");
       System.setProperty("DriverManager.userName", MARIADB.getUsername());
       System.setProperty("DriverManager.password", MARIADB.getPassword());
