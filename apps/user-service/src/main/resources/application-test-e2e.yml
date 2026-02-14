@@ -21,7 +21,7 @@ spring:
 
 mybatis:
   mapper-locations: classpath:mybatis/mapper/**/*.xml
-  type-aliases-package: site.icebang.dto
+  type-aliases-package: site.icebang.domain
   configuration:
     map-underscore-to-camel-case: true
 
