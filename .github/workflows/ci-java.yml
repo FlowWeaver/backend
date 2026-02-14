@@ -118,12 +118,24 @@ jobs:
         run: ./gradlew build -x test
         working-directory: apps/user-service
 
+      - name: Check Docker Environment
+        run: |
+          echo "=== Docker Version ==="
+          docker --version
+          echo "=== Docker Info ==="
+          docker info
+          echo "=== Docker Socket Permissions ==="
+          ls -la /var/run/docker.sock
+
       - name: Run Tests
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_CHECKS_DISABLE: true
         run: |
           ./gradlew unitTest --no-daemon
           ./gradlew integrationTest --no-daemon
           if [ "${{ github.base_ref }}" = "main" ] || [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            ./gradlew e2eTest --no-daemon
+            ./gradlew e2eTest --no-daemon --info
           fi
         working-directory: apps/user-service
 
