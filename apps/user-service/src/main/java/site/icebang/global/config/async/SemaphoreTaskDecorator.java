@@ -20,8 +20,15 @@ public class SemaphoreTaskDecorator implements TaskDecorator {
 
   @PostConstruct
   public void init() {
-    this.semaphore = new Semaphore(maximumPoolSize);
-    log.info("SemaphoreTaskDecorator 초기화: 동시 실행 제한 수(maximumPoolSize) = {}", maximumPoolSize);
+    int safetyBuffer = 5;
+    int taskConcurrencyLimit = Math.max(1, maximumPoolSize - safetyBuffer);
+
+    this.semaphore = new Semaphore(taskConcurrencyLimit);
+    log.info(
+        "SemaphoreTaskDecorator 초기화: DB 풀({}) - 여유분({}) = 동시 실행 제한 수({})",
+        maximumPoolSize,
+        safetyBuffer,
+        taskConcurrencyLimit);
   }
 
   @Override
