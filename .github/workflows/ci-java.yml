@@ -114,15 +114,23 @@ jobs:
         run: chmod +x ./gradlew
         working-directory: apps/user-service
 
+      - name: Set up Docker permissions
+        run: |
+          sudo chmod 666 /var/run/docker.sock
+          docker info
+
       - name: Run Gradle Build
         run: ./gradlew build -x test
         working-directory: apps/user-service
 
       - name: Run Tests
+        env:
+          TESTCONTAINERS_RYUK_DISABLED: "true"
+          DOCKER_HOST: unix:///var/run/docker.sock
         run: |
           ./gradlew unitTest
           ./gradlew integrationTest
-          if [ "${{ github.base_ref }}" = "main" ] || [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          if [ "${{ github.base_ref }}" = "main" ] || [[ "${{ github.ref }}" == refs/tags/* ]] || [ "${{ github.ref }}" = "refs/heads/develop" ]; then
             ./gradlew e2eTest
           fi
         working-directory: apps/user-service

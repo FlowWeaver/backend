@@ -40,22 +40,8 @@ public class E2eTestConfiguration {
   }
 
   @DynamicPropertySource
-  static void configureProperties(
-      DynamicPropertyRegistry registry, MariaDBContainer<?> mariadb, GenericContainer<?> loki) {
-    // MariaDB 연결 설정
-    registry.add("spring.datasource.url", () -> mariadb.getJdbcUrl() + "?serverTimezone=UTC");
-    registry.add("spring.datasource.username", mariadb::getUsername);
-    registry.add("spring.datasource.password", mariadb::getPassword);
-    registry.add("spring.datasource.driver-class-name", () -> "org.mariadb.jdbc.Driver");
-
-    // HikariCP 설정
-    registry.add("spring.hikari.connection-timeout", () -> "30000");
-    registry.add("spring.hikari.idle-timeout", () -> "600000");
-    registry.add("spring.hikari.max-lifetime", () -> "1800000");
-    registry.add("spring.hikari.maximum-pool-size", () -> "10");
-    registry.add("spring.hikari.minimum-idle", () -> "5");
-    registry.add("spring.hikari.pool-name", () -> "HikariCP-E2E");
-
-    System.setProperty("loki.port", String.valueOf(loki.getMappedPort(3100)));
+  static void configureProperties(DynamicPropertyRegistry registry, GenericContainer<?> loki) {
+    // Loki 포트 설정만 유지 (MariaDB는 @ServiceConnection이 자동 처리)
+    registry.add("loki.port", () -> String.valueOf(loki.getMappedPort(3100)));
   }
 }
