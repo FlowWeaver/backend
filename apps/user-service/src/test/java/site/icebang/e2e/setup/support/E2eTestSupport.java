@@ -3,12 +3,17 @@ package site.icebang.e2e.setup.support;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.web.client.RestClient;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.context.WebApplicationContext;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
 
@@ -19,27 +24,30 @@ import site.icebang.e2e.setup.config.E2eTestConfiguration;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @E2eTest
 public abstract class E2eTestSupport {
-  protected RestClient restClient;
+  @Autowired protected TestRestTemplate restTemplate;
+
+  @Autowired protected ObjectMapper objectMapper;
 
   @LocalServerPort protected int port;
+
+  @Autowired protected WebApplicationContext webApplicationContext;
+
+  protected MockMvc mockMvc;
 
   private List<String> sessionCookies = new ArrayList<>();
 
   @PostConstruct
-  void initRestClient() {
-    this.restClient =
-        RestClient.builder()
-            .baseUrl("http://localhost:" + port)
-            .requestInterceptor(createCookieInterceptor())
-            .build();
-    logDebug("RestClient 및 쿠키 관리 인터셉터 설정 완료");
+  void setupCookieManagement() {
+    // RestTemplate에 쿠키 인터셉터 추가
+    restTemplate.getRestTemplate().getInterceptors().add(createCookieInterceptor());
+    logDebug("쿠키 관리 인터셉터 설정 완료");
   }
 
   private ClientHttpRequestInterceptor createCookieInterceptor() {
     return (request, body, execution) -> {
       // 요청에 저장된 쿠키 추가
       if (!sessionCookies.isEmpty()) {
-        request.getHeaders().add("Cookie", String.join("; ", sessionCookies));
+        request.getHeaders().put("Cookie", sessionCookies);
         logDebug("쿠키 전송: " + String.join("; ", sessionCookies));
       }
 
@@ -77,8 +85,12 @@ public abstract class E2eTestSupport {
     return "http://localhost:" + port;
   }
 
+  protected String getApiUrl(String path) {
+    return getBaseUrl() + path;
+  }
+
   protected String getV0ApiUrl(String path) {
-    return "/v0" + path;
+    return getBaseUrl() + "/v0" + path;
   }
 
   /** 세션 쿠키 관리 메서드들 */
@@ -89,6 +101,10 @@ public abstract class E2eTestSupport {
 
   protected List<String> getSessionCookies() {
     return new ArrayList<>(sessionCookies);
+  }
+
+  protected boolean hasSessionCookie(String cookieName) {
+    return sessionCookies.stream().anyMatch(cookie -> cookie.startsWith(cookieName + "="));
   }
 
   /** 테스트 시나리오 단계별 로깅을 위한 유틸리티 메서드 */

@@ -14,6 +14,11 @@ import org.springframework.test.context.jdbc.Sql;
 import site.icebang.e2e.setup.annotation.E2eTest;
 import site.icebang.e2e.setup.support.E2eTestSupport;
 
+/**
+ * 스케줄 관련 E2E 시나리오 테스트
+ *
+ * <p>ScheduleService 기능을 API 플로우 관점에서 검증
+ */
 @Sql(
     value = {
       "classpath:sql/data/00-truncate.sql",
@@ -41,15 +46,11 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(scheduleRequest, headers);
+
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules"))
-            .headers(h -> h.addAll(headers))
-            .body(scheduleRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"), entity, Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat((Boolean) response.getBody().get("success")).isTrue();
@@ -72,14 +73,10 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules"))
-            .headers(h -> h.addAll(headers))
-            .body(scheduleRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
+            new HttpEntity<>(scheduleRequest, headers),
+            Map.class);
 
     assertThat(response.getStatusCode())
         .isIn(
@@ -105,14 +102,13 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules"))
-            .headers(h -> h.addAll(headers))
-            .body(scheduleRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
+            new HttpEntity<>(scheduleRequest, headers),
+            Map.class);
+
+    System.out.println("==== response body ====");
+    System.out.println(response.getBody());
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat((Boolean) response.getBody().get("success")).isTrue();
@@ -126,23 +122,21 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     performUserLogin();
     Long workflowId = createWorkflow("스케줄 조회용 워크플로우");
 
+    // 스케줄 2개 추가
     addSchedule(workflowId, "0 0 8 * * ?", "매일 오전 8시", true);
     addSchedule(workflowId, "0 0 18 * * ?", "매일 오후 6시", true);
 
     logStep(1, "스케줄 목록 조회 API 호출");
     ResponseEntity<Map> response =
-        restClient
-            .get()
-            .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules"))
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.getForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"), Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat((Boolean) response.getBody().get("success")).isTrue();
 
     List<Map<String, Object>> schedules =
         (List<Map<String, Object>>) response.getBody().get("data");
+
     assertThat(schedules).hasSizeGreaterThanOrEqualTo(2);
 
     logSuccess("스케줄 목록 조회 성공: " + schedules.size() + "개");
@@ -153,6 +147,7 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
   void updateSchedule_toggleActive_success() {
     performUserLogin();
     Long workflowId = createWorkflow("스케줄 수정용 워크플로우");
+
     Long scheduleId = addSchedule(workflowId, "0 0 12 * * ?", "정오 실행", true);
 
     logStep(1, "스케줄 비활성화 요청");
@@ -164,14 +159,9 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    restClient
-        .put()
-        .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules/" + scheduleId))
-        .headers(h -> h.addAll(headers))
-        .body(updateRequest)
-        .retrieve()
-        .onStatus(HttpStatusCode::isError, (req, res) -> {})
-        .toBodilessEntity();
+    restTemplate.put(
+        getV0ApiUrl("/workflows/" + workflowId + "/schedules/" + scheduleId),
+        new HttpEntity<>(updateRequest, headers));
 
     logSuccess("스케줄 수정 및 비활성화 성공");
   }
@@ -181,19 +171,16 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
   void deleteSchedule_success() {
     performUserLogin();
     Long workflowId = createWorkflow("스케줄 삭제용 워크플로우");
+
     Long scheduleId = addSchedule(workflowId, "0 0 7 * * ?", "매일 오전 7시", true);
 
     logStep(1, "스케줄 삭제 요청");
-    restClient
-        .delete()
-        .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules/" + scheduleId))
-        .retrieve()
-        .onStatus(HttpStatusCode::isError, (req, res) -> {})
-        .toBodilessEntity();
+    restTemplate.delete(getV0ApiUrl("/workflows/" + workflowId + "/schedules/" + scheduleId));
 
     logSuccess("스케줄 삭제 성공 (논리 삭제)");
   }
 
+  /** 워크플로우 생성 헬퍼 */
   private Long createWorkflow(String name) {
     Map<String, Object> workflowRequest = new HashMap<>();
     workflowRequest.put("name", name);
@@ -204,24 +191,13 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/workflows"))
-            .headers(h -> h.addAll(headers))
-            .body(workflowRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows"), new HttpEntity<>(workflowRequest, headers), Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
     ResponseEntity<Map> listResponse =
-        restClient
-            .get()
-            .uri(getV0ApiUrl("/workflows"))
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/workflows"), Map.class);
 
     Map<String, Object> body = listResponse.getBody();
     List<Map<String, Object>> workflows =
@@ -234,6 +210,7 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
         .orElseThrow(() -> new RuntimeException("생성한 워크플로우를 찾을 수 없습니다"));
   }
 
+  /** 스케줄 추가 헬퍼 */
   private Long addSchedule(Long workflowId, String cron, String text, boolean active) {
     Map<String, Object> scheduleRequest = new HashMap<>();
     scheduleRequest.put("cronExpression", cron);
@@ -244,14 +221,10 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.setContentType(MediaType.APPLICATION_JSON);
 
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/workflows/" + workflowId + "/schedules"))
-            .headers(h -> h.addAll(headers))
-            .body(scheduleRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(
+            getV0ApiUrl("/workflows/" + workflowId + "/schedules"),
+            new HttpEntity<>(scheduleRequest, headers),
+            Map.class);
 
     assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
@@ -259,6 +232,7 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
         ((Map<String, Object>) response.getBody().get("data")).get("id").toString());
   }
 
+  /** 사용자 로그인을 수행하는 헬퍼 메서드 */
   private void performUserLogin() {
     Map<String, String> loginRequest = new HashMap<>();
     loginRequest.put("email", "admin@icebang.site");
@@ -269,15 +243,10 @@ class ScheduleManagementE2eTest extends E2eTestSupport {
     headers.set("Origin", "https://admin.icebang.site");
     headers.set("Referer", "https://admin.icebang.site/");
 
+    HttpEntity<Map<String, String>> entity = new HttpEntity<>(loginRequest, headers);
+
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/login"))
-            .headers(h -> h.addAll(headers))
-            .body(loginRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/login"), entity, Map.class);
 
     if (response.getStatusCode() != HttpStatus.OK) {
       logError("사용자 로그인 실패: " + response.getStatusCode());

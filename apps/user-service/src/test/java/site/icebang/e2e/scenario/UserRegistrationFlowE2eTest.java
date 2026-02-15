@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.http.*;
 import org.springframework.test.context.jdbc.Sql;
 
-import site.icebang.e2e.setup.annotation.E2eTest;
 import site.icebang.e2e.setup.support.E2eTestSupport;
 
 @Sql(
@@ -22,7 +21,6 @@ import site.icebang.e2e.setup.support.E2eTestSupport;
     },
     executionPhase = Sql.ExecutionPhase.BEFORE_TEST_CLASS)
 @DisplayName("사용자 등록 플로우 E2E 테스트")
-@E2eTest
 class UserRegistrationFlowE2eTest extends E2eTestSupport {
 
   @SuppressWarnings("unchecked")
@@ -31,6 +29,7 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
   void completeUserRegistrationFlow() throws Exception {
     logStep(1, "관리자 로그인 (최우선)");
 
+    // 1. 관리자 로그인 (ERP에서 모든 작업의 선행 조건)
     Map<String, String> loginRequest = new HashMap<>();
     loginRequest.put("email", "admin@icebang.site");
     loginRequest.put("password", "qwer1234!A");
@@ -40,15 +39,10 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     loginHeaders.set("Origin", "https://admin.icebang.site");
     loginHeaders.set("Referer", "https://admin.icebang.site/");
 
+    HttpEntity<Map<String, String>> loginEntity = new HttpEntity<>(loginRequest, loginHeaders);
+
     ResponseEntity<Map> loginResponse =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/login"))
-            .headers(h -> h.addAll(loginHeaders))
-            .body(loginRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/login"), loginEntity, Map.class);
 
     assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat((Boolean) loginResponse.getBody().get("success")).isTrue();
@@ -58,13 +52,9 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
 
     logStep(2, "조직 목록 조회 (인증된 상태)");
 
+    // 2. 조직 목록 조회 (로그인 후 가능, 쿠키 자동 전송)
     ResponseEntity<Map> organizationsResponse =
-        restClient
-            .get()
-            .uri(getV0ApiUrl("/organizations"))
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/organizations"), Map.class);
 
     assertThat(organizationsResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat((Boolean) organizationsResponse.getBody().get("success")).isTrue();
@@ -74,13 +64,9 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
 
     logStep(3, "부서 및 각종 데이터 조회 (특정 조직 옵션)");
 
+    // 3. 특정 조직의 부서, 직급, 역할 데이터 조회
     ResponseEntity<Map> optionsResponse =
-        restClient
-            .get()
-            .uri(getV0ApiUrl("/organizations/1/options"))
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/organizations/1/options"), Map.class);
 
     assertThat(optionsResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     assertThat((Boolean) optionsResponse.getBody().get("success")).isTrue();
@@ -92,6 +78,7 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
 
     logSuccess("부서 및 각종 데이터 조회 성공");
 
+    // 조회된 데이터 로깅 (ERP 관점에서 중요한 메타데이터)
     System.out.println("📊 조회된 메타데이터:");
     System.out.println(
         "   - 부서: " + ((java.util.List<?>) optionData.get("departments")).size() + "개");
@@ -101,13 +88,14 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
 
     logStep(4, "새 사용자 등록 (모든 메타데이터 확인 후)");
 
+    // 4. 새 사용자 등록 (조회한 메타데이터 기반으로)
     Map<String, Object> registerRequest = new HashMap<>();
     registerRequest.put("name", "김철수");
     registerRequest.put("email", "kim.chulsoo@example.com");
     registerRequest.put("orgId", 1);
-    registerRequest.put("deptId", 2);
-    registerRequest.put("positionId", 5);
-    registerRequest.put("roleIds", Arrays.asList(6, 7, 8));
+    registerRequest.put("deptId", 2); // 조회한 부서 정보 기반
+    registerRequest.put("positionId", 5); // 조회한 직급 정보 기반
+    registerRequest.put("roleIds", Arrays.asList(6, 7, 8)); // 조회한 역할 정보 기반
     registerRequest.put("password", null);
 
     HttpHeaders registerHeaders = new HttpHeaders();
@@ -115,15 +103,11 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     registerHeaders.set("Origin", "https://admin.icebang.site");
     registerHeaders.set("Referer", "https://admin.icebang.site/");
 
+    HttpEntity<Map<String, Object>> registerEntity =
+        new HttpEntity<>(registerRequest, registerHeaders);
+
     ResponseEntity<Map> registerResponse =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/register"))
-            .headers(h -> h.addAll(registerHeaders))
-            .body(registerRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/register"), registerEntity, Map.class);
 
     assertThat(registerResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
     assertThat((Boolean) registerResponse.getBody().get("success")).isTrue();
@@ -147,15 +131,10 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
+    HttpEntity<Map<String, String>> entity = new HttpEntity<>(wrongPasswordRequest, headers);
+
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/login"))
-            .headers(h -> h.addAll(headers))
-            .body(wrongPasswordRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/login"), entity, Map.class);
 
     assertThat(response.getStatusCode()).isIn(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN);
     logSuccess("잘못된 자격증명 로그인 차단 확인");
@@ -166,15 +145,11 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     nonExistentUserRequest.put("email", "nonexistent@example.com");
     nonExistentUserRequest.put("password", "anypassword");
 
+    HttpEntity<Map<String, String>> nonExistentEntity =
+        new HttpEntity<>(nonExistentUserRequest, headers);
+
     ResponseEntity<Map> nonExistentResponse =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/login"))
-            .headers(h -> h.addAll(headers))
-            .body(nonExistentUserRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/login"), nonExistentEntity, Map.class);
 
     assertThat(nonExistentResponse.getStatusCode())
         .isIn(HttpStatus.UNAUTHORIZED, HttpStatus.FORBIDDEN);
@@ -185,29 +160,23 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
   @Test
   @DisplayName("중복 이메일로 사용자 등록 시도 시 실패")
   void register_withDuplicateEmail_shouldFail() {
+    // 선행 조건: 관리자 로그인
     performAdminLogin();
+
+    // 첫 번째 사용자 등록 (실제 API 데이터 기반)
     registerUser("first.user@example.com", "첫번째사용자");
 
     logStep(1, "중복 이메일로 회원가입 시도");
 
+    // 조직 및 옵션 정보 다시 조회 (실제 값 사용)
     ResponseEntity<Map> organizationsResponse =
-        restClient
-            .get()
-            .uri(getV0ApiUrl("/organizations"))
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/organizations"), Map.class);
     java.util.List<Map<String, Object>> organizations =
         (java.util.List<Map<String, Object>>) organizationsResponse.getBody().get("data");
     Integer orgId = (Integer) organizations.getFirst().get("id");
 
     ResponseEntity<Map> optionsResponse =
-        restClient
-            .get()
-            .uri(getV0ApiUrl("/organizations/" + orgId + "/options"))
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.getForEntity(getV0ApiUrl("/organizations/" + orgId + "/options"), Map.class);
     Map<String, Object> optionData = (Map<String, Object>) optionsResponse.getBody().get("data");
 
     java.util.List<Map<String, Object>> departments =
@@ -221,9 +190,10 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     Integer positionId = (Integer) positions.getFirst().get("id");
     Integer roleId = (Integer) roles.getFirst().get("id");
 
+    // 동일한 이메일로 다시 등록 시도
     Map<String, Object> duplicateRequest = new HashMap<>();
     duplicateRequest.put("name", "중복사용자");
-    duplicateRequest.put("email", "first.user@example.com");
+    duplicateRequest.put("email", "first.user@example.com"); // 중복 이메일
     duplicateRequest.put("orgId", orgId);
     duplicateRequest.put("deptId", deptId);
     duplicateRequest.put("positionId", positionId);
@@ -232,21 +202,19 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/register"))
-            .headers(h -> h.addAll(headers))
-            .body(duplicateRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(duplicateRequest, headers);
 
+    ResponseEntity<Map> response =
+        restTemplate.postForEntity(getV0ApiUrl("/auth/register"), entity, Map.class);
+
+    // 중복 이메일 처리 확인
     assertThat(response.getStatusCode())
         .isIn(HttpStatus.BAD_REQUEST, HttpStatus.CONFLICT, HttpStatus.UNPROCESSABLE_ENTITY);
+
     logSuccess("중복 이메일 등록 차단 확인");
   }
 
+  /** 관리자 로그인을 수행하는 헬퍼 메서드 */
   private void performAdminLogin() {
     Map<String, String> loginRequest = new HashMap<>();
     loginRequest.put("email", "admin@icebang.site");
@@ -255,15 +223,10 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
+    HttpEntity<Map<String, String>> entity = new HttpEntity<>(loginRequest, headers);
+
     ResponseEntity<Map> response =
-        restClient
-            .post()
-            .uri(getV0ApiUrl("/auth/login"))
-            .headers(h -> h.addAll(headers))
-            .body(loginRequest)
-            .retrieve()
-            .onStatus(HttpStatusCode::isError, (req, res) -> {})
-            .toEntity(Map.class);
+        restTemplate.postForEntity(getV0ApiUrl("/auth/login"), entity, Map.class);
 
     if (response.getStatusCode() != HttpStatus.OK) {
       logError("관리자 로그인 실패: " + response.getStatusCode());
@@ -274,6 +237,7 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     logDebug("세션 쿠키: " + getSessionCookies());
   }
 
+  /** 사용자 등록을 수행하는 헬퍼 메서드 */
   private void registerUser(String email, String name) {
     Map<String, Object> registerRequest = new HashMap<>();
     registerRequest.put("name", name);
@@ -287,13 +251,7 @@ class UserRegistrationFlowE2eTest extends E2eTestSupport {
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(MediaType.APPLICATION_JSON);
 
-    restClient
-        .post()
-        .uri(getV0ApiUrl("/auth/register"))
-        .headers(h -> h.addAll(headers))
-        .body(registerRequest)
-        .retrieve()
-        .onStatus(HttpStatusCode::isError, (req, res) -> {})
-        .toBodilessEntity();
+    HttpEntity<Map<String, Object>> entity = new HttpEntity<>(registerRequest, headers);
+    restTemplate.postForEntity(getV0ApiUrl("/auth/register"), entity, Map.class);
   }
 }
