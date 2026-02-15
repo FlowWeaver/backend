@@ -89,11 +89,6 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     needs: spotless-check
-
-    env:
-      TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE: /var/run/docker.sock
-      DOCKER_HOST: unix:///var/run/docker.sock
-
     strategy:
       matrix:
         java-version: ["21"]
