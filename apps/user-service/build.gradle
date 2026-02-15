@@ -95,7 +95,7 @@ dependencies {
 
 // REST Docs 스니펫 디렉토리 설정
 ext {
-    set('testcontainers.version', '1.20.4')
+	set('testcontainers.version', '1.20.4')
 
 	snippetsDir = file('build/generated-snippets')
 }
